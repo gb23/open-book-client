@@ -4,7 +4,14 @@ export default ( state = [], action ) => {
         return action.sections;
 
     case 'CREATE_SECTION_SUCCESS':
-        return state.concat(action.section)
+        return state.concat(action.section);
+    case 'SECTION_UPVOTE':
+        const index = state.findIndex(sectionObj => sectionObj.id === action.sectionId);
+        const section = state[index];
+        return [
+            ...state.slice(0, index), {...section, votes: section.votes + 1},
+            ...state.slice(index + 1)
+        ];
     default:
         return state;
   }
