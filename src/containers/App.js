@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import './App.css';
+//import './App.css';
+
 import Sections from './Sections.js';
 
 //import {connect} from 'react-redux';
