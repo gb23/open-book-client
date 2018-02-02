@@ -17,7 +17,30 @@ const addSection = section => {
     };
 }
 
+const sectionUpVote = (sectionId) => {
+    return {
+        type: 'SECTION_UPVOTE',
+        sectionId
+    };
+}
+
 // ** Async Actions **
+export const upVoteSection = (section) => {
+    return dispatch => {
+        return fetch(`${API_URL}/sections/${section.id}`, {
+            method: "PATCH",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({section: {...section, votes: section.votes + 1}})
+        })
+        .then(response => response.json())
+        .then(section => {
+            dispatch(sectionUpVote(section.id))
+        })
+        .catch(error => console.log(error));
+    }
+}
 export const getSections = () => {
     return dispatch => {
         return fetch(`${API_URL}/sections`)
