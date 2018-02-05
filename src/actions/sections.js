@@ -5,6 +5,7 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 // ** Action Creators **
 const setSections = sections => {
+    //debugger;
      return {
         type: 'GET_SECTIONS_SUCCESS',
         sections 
@@ -22,6 +23,27 @@ const sectionUpVote = (sectionId) => {
         type: 'SECTION_UPVOTE',
         sectionId
     };
+}
+
+export const setCurrentSection = (section) => {
+    //debugger;
+    return {
+        type: 'SECTION_SET',
+        section
+    }
+}
+export const moveSectionRight = (section) => {
+    return {
+        type: 'SECTION_RIGHT',
+        section
+    }
+}
+
+export const moveSectionLeft = (section) => {
+    return {
+        type: 'SECTION_LEFT',
+        section
+    }
 }
 
 // ** Async Actions **
