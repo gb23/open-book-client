@@ -11,10 +11,10 @@ const setSections = sections => {
         sections 
      };
 }
-const addSection = section => {
+const addSection = sections => {
     return {
         type: 'CREATE_SECTION_SUCCESS',
-        section
+        sections
     };
 }
 
@@ -71,7 +71,7 @@ export const getSections = () => {
             .catch(error => console.log(error));
     }
 }
-export const createSection = section => {
+export const createSection = (section) => {
     return dispatch => {
         return fetch(`${API_URL}/sections`, {
             method: "POST",
@@ -81,8 +81,8 @@ export const createSection = section => {
             body: JSON.stringify({section: section})
         })
             .then(response => response.json())
-            .then(section => {
-                dispatch(addSection(section))
+            .then(sections => {
+                dispatch(addSection(sections))
                 dispatch(resetSectionForm())
             })
             .catch(error => console.log(error));
