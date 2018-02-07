@@ -1,4 +1,4 @@
-const initialState = {id: 0, text: ""}; //??initial section may not always have an id of zero (assigned in backend)
+const initialState = {id: -1}; 
 
 
 export default ( state = initialState , action) => {
