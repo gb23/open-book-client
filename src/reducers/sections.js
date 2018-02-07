@@ -1,10 +1,19 @@
-export default ( state = [], action ) => {
+export default ( state = {loading: true, list:[]}, action ) => {
   switch(action.type) {
     case 'GET_SECTIONS_SUCCESS':
         return action.sections;
 
     case 'CREATE_SECTION_SUCCESS':
-        return state.concat(action.section);
+        //returning  action.sections.section, action.sections.sectionPrev
+        const indexPrev = state.findIndex(sectionObj => sectionObj.id === action.sections.sectionPrev.id);
+     
+        return [
+            ...state.slice(0, indexPrev), 
+            {...action.sections.sectionPrev}, 
+            {...action.sections.section},
+            ...state.slice(indexPrev + 1)
+        ].sort((A, B) => A.id - B.id);
+
     case 'SECTION_UPVOTE':
         const index = state.findIndex(sectionObj => sectionObj.id === action.sectionId);
         const section = state[index];
