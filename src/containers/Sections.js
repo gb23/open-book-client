@@ -1,20 +1,14 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import './Sections.css'
 import SectionCard from '../components/SectionCard'
 import { getSections, upVoteSection, moveSectionRight, moveSectionLeft, setCurrentSection } from '../actions/sections';
 import SectionForm from './SectionForm'
 
-//clsdd because using lifecycle component did mount
 class Sections extends Component{
 
     componentDidMount() {
         this.props.getSections(); 
-       // debugger;
-    }
-    componentDidUpdate() {
-        this.props.SectionCurrent && this.props.SectionCurrent.focus();
     }
     handleUpVote = (sectionId) => {
         const sectionAddVote = this.props.sections.filter(section => section.id === sectionId);
@@ -59,8 +53,7 @@ class Sections extends Component{
                 console.log("not the top!");
                 //if inside here, the card that was selected when '-->' pressed has a parent node
                 //get parent node:
-                const parentId = section.prev_id
-                const parentSection = this.props.sections.find(section => section.id === parentId);
+                const parentSection = this.props.sections.find(section => section.id === section.prev_id);
                 const sectionIdIndexInNextID = parentSection.next_ids.indexOf(section.id)
                 
                     //check if current section id is not last item in parent node's next_ids (for right arrow) OR is not first item (for left arrow).
@@ -71,7 +64,11 @@ class Sections extends Component{
                         const nextId = this.getNextId(parentSection, sectionIdIndexInNextID, boundary.direction)
                         const nextSection = this.props.sections.find(section => section.id === nextId);//this.getNextId(parentSection, sectionIdIndexInNextID, boundary.direction));//nextId);
                         this.props.setCurrentSection(nextSection);
-                    } else {
+                    } else { //elseif boundary.index
+                        //console.log("you can move,  boundary.direction")
+                        
+
+
                         // else is last item in parent node's next_ids and cannot move right/left anymore.add UI animation so user knows can't arrow right/left.
                         console.log("you cannot move", boundary.direction);
                     }
@@ -89,41 +86,60 @@ class Sections extends Component{
             }
     }
     handleSelect = (event, section) => {
-
         this.props.setCurrentSection(section);
     }
-    sectionCards = () => {
-        // return (
-        //     this.props.sections.map(section => 
-        //         <SectionCard key={section.id} section={section} onVote={this.handleUpVote} onDown={this.handleKeyDown} onSelect={this.handleSelect} />
-        //     )
-        // );
-        //debugger;
-        let nextId = 0;
-        if (this.props.sections[0] !== undefined){
-            nextId = this.props.sections[0].id;
+    ancestorOfPointer = (sectId, pointer) => {
+        let done = false;
+        let found = false;
+        let checkId = pointer;
+        const locateSection = (checkId) => {
+            return this.props.sections.find(section => section.id === checkId)
         }
-       
+        while (!done){
+            const checkSection = locateSection(checkId);
+            if (checkSection){
+                if (checkSection.prev_id === sectId){
+                    found = true;
+                    done = true;
+                } else {
+                    checkId = checkSection.prev_id;
+                }
+            } else {
+                done = true;
+            }
+        }
+        return found;
+    }
+    sectionCards = () => {       
+        let nextId = this.props.sections[0].id;
+        let pointer = this.props.sections[0].id;
+        
+        if (!this.props.sections[0]){
+           // nextId = this.props.sections[0].id;
+            console.error("something not right!")
+        }
         
         let idHighestVotes = -1
-        
-        //stubbed!
-        let pointer = 1;//change this once you figure out how to set sectionCurrent on initial runthrough.  Cannot set current state inside render()
-        if (this.props.sectionCurrent !== undefined ){
-        //     debugger;
-        //     //this.props.setCurrentSection(this.props.sections[0]);
+
+        if (this.props.sectionCurrent && this.props.sectionCurrent.id !== -1){
                pointer = this.props.sectionCurrent.id;
         }
-       
-        
+
          const sectionCards =   this.props.sections.map(section =>{
                 // 1st time: this will be equal
-                //debugger;
+              
                 if (section.id === nextId){
-
-                    if(section.next_ids.find(sect => sect === pointer)){
+                    //section will be displayed based on these hierarchical rules.  Section is:
+                    // 1. pointed to (user has selected)
+                    // 2. an ancestor of a pointed to section
+                    // 3. has the most votes compared to those sections with the same section parent
+                    
+                    //1:
+                    if(section.next_ids.find(sectId => sectId === pointer)){
                         nextId = pointer;
-                    } else {
+                    } else if (section.next_ids.find(sectId => this.ancestorOfPointer(sectId, pointer))){//pointer has ancestor that is in section.next_ids) { //2:
+                        nextId = section.next_ids.find(sectId => this.ancestorOfPointer(sectId, pointer));
+                    } else { //3:
                         idHighestVotes = section.next_ids[0] //default is first in array
                         section.next_ids.forEach(nextid => {
 
@@ -143,24 +159,32 @@ class Sections extends Component{
                     return "";
                 }
             }).filter(text => text !== "");
-            return sectionCards;
+            
+            let sectionToAddTo = -1;
+        
+            if (sectionCards.slice(-1)[0]){
+                sectionToAddTo = sectionCards.slice(-1)[0].key
+            }
+             
+            return {sectionCards, sectionToAddTo} ;
     }
-
+  
     render() {
         return(
             <div >
                 <h1> Sections Component</h1>
-                {this.sectionCards()}
-                {/* <SectionCards /> */}
-                <SectionForm />
+                {this.props.loading ? "loading!!" : this.sectionCards().sectionCards} 
+          
+                {this.props.loading ? "" : < SectionForm sectionToAddTo={this.sectionCards().sectionToAddTo} /> }
             </div>
-            
         );
     }  
 }
 
 const mapStateToProps = (state) => {
+    
     return ({
+        loading: state.sections.loading,
         sections: state.sections,
         sectionCurrent: state.sectionCurrent
     });
