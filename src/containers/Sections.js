@@ -53,7 +53,10 @@ class Sections extends Component{
                 console.log("not the top!");
                 //if inside here, the card that was selected when '-->' pressed has a parent node
                 //get parent node:
-                const parentSection = this.props.sections.find(section => section.id === section.prev_id);
+               
+          
+                const parentSection = this.props.sections.find(sec => sec.id === section.prev_id);
+
                 const sectionIdIndexInNextID = parentSection.next_ids.indexOf(section.id)
                 
                     //check if current section id is not last item in parent node's next_ids (for right arrow) OR is not first item (for left arrow).
