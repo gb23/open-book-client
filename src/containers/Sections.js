@@ -2,11 +2,23 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import './Sections.css'
 import SectionCard from '../components/SectionCard'
-import { getSections, upVoteSection, moveSectionRight, moveSectionLeft, setCurrentSection } from '../actions/sections';
+import { getSections, upVoteSection, replaceSectionWithForm, setCurrentSection } from '../actions/sections';
 import SectionForm from './SectionForm'
-
+Array.prototype.cutNegOnes = function() {
+    console.log(this);
+    if(this[0] === -1 && this[this.length -1] === -1 && this.length > 2){
+        console.log("inside!!")
+        return this.slice(1,-1);
+    }
+    else if(this[0] === -1 && this[this.length -1] === -1 && this.length === 2){
+        return this.slice(1)
+    }
+    else {
+        console.error("cutNegOnes fail...")
+    }
+} 
 class Sections extends Component{
-
+    
     componentDidMount() {
         this.props.getSections(); 
     }
@@ -18,15 +30,13 @@ class Sections extends Component{
     }
     handleKeyDown = (event, section) => {
         // if sectionId === store's section, you are good
-        console.log("section had a select:", section.id)
+        console.log("section had a keyDown:", section.id)
         console.log(event.key);
         //debugger;
         if (event.key === "ArrowRight" || event.key === "ArrowLeft"){
             event.preventDefault();
             this.handleArrow(event.key, section)
         }
-      
-
     }
     nextIdBoundary = (keyName, parentSection) => {
         let boundary = {};
@@ -65,8 +75,20 @@ class Sections extends Component{
                         console.log("you move", boundary.direction)
                         // find the next section (the one that will be arrowed over to)
                         const nextId = this.getNextId(parentSection, sectionIdIndexInNextID, boundary.direction)
+                        //debugger;
+                        //if last card on x, nextId will be -1 here.
+                        // thus nextSection is undefined
+                        
                         const nextSection = this.props.sections.find(section => section.id === nextId);//this.getNextId(parentSection, sectionIdIndexInNextID, boundary.direction));//nextId);
-                        this.props.setCurrentSection(nextSection);
+                        if(nextSection){
+                            this.props.setCurrentSection(nextSection);
+                        } else {
+                            debugger;
+                            //set redux state replaceSection = {valid: true, sectionToReplace: sectionCurrent};
+                            // trigger re-render
+                            this.props.replaceSectionWithForm({valid: true, sectionToReplace: this.props.sectionCurrent});
+                        }
+                        
                     } else { //elseif boundary.index
                         //console.log("you can move,  boundary.direction")
                         
@@ -114,6 +136,7 @@ class Sections extends Component{
         return found;
     }
     sectionCards = () => {       
+       
         let nextId = this.props.sections[0].id;
         let pointer = this.props.sections[0].id;
         
@@ -130,21 +153,33 @@ class Sections extends Component{
 
          const sectionCards =   this.props.sections.map(section =>{
                 // 1st time: this will be equal
-              
+             
                 if (section.id === nextId){
                     //section will be displayed based on these hierarchical rules.  Section is:
+                    // 0. replaced by a form
                     // 1. pointed to (user has selected)
                     // 2. an ancestor of a pointed to section
                     // 3. has the most votes compared to those sections with the same section parent
                     
+                    // 0:
+                    const props = this.props
+                   // console.log(props.sectionReplace.valid === true, " section Replace valid")
+                   // console.log(props.sectionReplace.sectionToReplace, " section to replace equals")
+                   // console.log(section, " current section equals")
+                   // console.log(section.id === props.sectionReplace.sectionToReplace.id, " are two equal???")
+                    if (props.sectionReplace.valid === true && section.id === props.sectionReplace.sectionToReplace.id){
+                        //this.props.replaceSectionWithForm({valid: false});
+                        return < SectionForm key="-1" sectionToAddTo={props.sectionReplace.sectionToReplace.prev_id} />
+                    }
                     //1:
-                    if(section.next_ids.find(sectId => sectId === pointer)){
+                    else{
+                    if(section.next_ids.cutNegOnes().find(sectId => sectId === pointer)){
                         nextId = pointer;
-                    } else if (section.next_ids.find(sectId => this.ancestorOfPointer(sectId, pointer))){//pointer has ancestor that is in section.next_ids) { //2:
-                        nextId = section.next_ids.find(sectId => this.ancestorOfPointer(sectId, pointer));
+                    } else if (section.next_ids.cutNegOnes().find(sectId => this.ancestorOfPointer(sectId, pointer))){//pointer has ancestor that is in section.next_ids) { //2:
+                        nextId = section.next_ids.cutNegOnes().find(sectId => this.ancestorOfPointer(sectId, pointer));
                     } else { //3:
-                        idHighestVotes = section.next_ids[0] //default is first in array
-                        section.next_ids.forEach(nextid => {
+                        idHighestVotes = section.next_ids.cutNegOnes()[0] //default is first in array
+                        section.next_ids.cutNegOnes().forEach(nextid => {
 
                             const segmentNext = this.props.sections.find(sect => sect.id === nextid)
 
@@ -157,6 +192,7 @@ class Sections extends Component{
                         nextId = idHighestVotes;
                     }
                     return <SectionCard  key={section.id} section={section} onVote={this.handleUpVote} onDown={this.handleKeyDown} onSelect={this.handleSelect} />;               
+                    }
                 }
                 else {
                     return "";
@@ -165,9 +201,12 @@ class Sections extends Component{
             
             let sectionToAddTo = -1;
         
+            //adds to the last rendered card when replaceSection = false.
+            //add this: 
+            //if replaceSection.valid = false
             if (sectionCards.slice(-1)[0]){
                 sectionToAddTo = sectionCards.slice(-1)[0].key
-            }
+            }       
              
             return {sectionCards, sectionToAddTo} ;
     }
@@ -177,7 +216,9 @@ class Sections extends Component{
             <div >
                 <h1> Sections Component</h1>
                 {this.props.loading ? "loading!!" : this.sectionCards().sectionCards} 
-          
+
+                {/* only want the bottom seciton form rendering if replace section form is not rendered */}
+                {/*  &&!this.props.replaceSection */}
                 {this.props.loading ? "" : < SectionForm sectionToAddTo={this.sectionCards().sectionToAddTo} /> }
             </div>
         );
@@ -189,11 +230,12 @@ const mapStateToProps = (state) => {
     return ({
         loading: state.sections.loading,
         sections: state.sections,
-        sectionCurrent: state.sectionCurrent
+        sectionCurrent: state.sectionCurrent,
+        sectionReplace: state.sectionReplace
     });
 }
 
-export default connect(mapStateToProps, { getSections, upVoteSection, moveSectionRight, moveSectionLeft, setCurrentSection })(Sections);
+export default connect(mapStateToProps, { getSections, upVoteSection, replaceSectionWithForm, setCurrentSection })(Sections);
 
 
 
