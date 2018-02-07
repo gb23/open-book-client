@@ -156,7 +156,8 @@ class Sections extends Component{
                         })
                         nextId = idHighestVotes;
                     }
-                    return <SectionCard  key={section.id} section={section} onVote={this.handleUpVote} onDown={this.handleKeyDown} onSelect={this.handleSelect} />;               
+
+                    return <SectionCard selected={section.id === this.props.sectionCurrent.id || undefined } key={section.id} section={section} onVote={this.handleUpVote} onDown={this.handleKeyDown} onSelect={this.handleSelect} />;               
                 }
                 else {
                     return "";
