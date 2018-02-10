@@ -1,4 +1,4 @@
-const initialState = {text: "", votes: 0, next_ids: [-1, -1], prev_id: -1}
+const initialState = {text: "", votes: 0, next_ids: [-1], prev_id: -1}
 
 
 export default ( state = initialState , action) => {
