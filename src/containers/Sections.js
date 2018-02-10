@@ -218,18 +218,6 @@ if (debug) {debugger;}
 
                                 const segmentOfHighestVotes = this.props.sections.find(sect => sect.id === idHighestVotes)
 
-<<<<<<< HEAD
-                            if(segmentNext && segmentOfHighestVotes && segmentNext.votes > segmentOfHighestVotes.votes){
-                                idHighestVotes = nextid;
-                            }
-                        })
-                        nextId = idHighestVotes;
-                    }
-
-                    return <SectionCard selected={section.id === this.props.sectionCurrent.id || undefined } key={section.id} section={section} onVote={this.handleUpVote} onDown={this.handleKeyDown} onSelect={this.handleSelect} />;               
-                }
-                else {
-=======
                                 if(segmentNext && segmentOfHighestVotes && segmentNext.votes > segmentOfHighestVotes.votes){
                                     idHighestVotes = nextid;
                                 }
@@ -239,7 +227,6 @@ if (debug) {debugger;}
                         return <SectionCard  key={section.id} section={section} onVote={this.handleUpVote} onDown={this.handleKeyDown} onSelect={this.handleSelect} />;               
                     } 
                 } else {
->>>>>>> add-new-section-x-axis-branch
                     return "";
                 }
             }).filter(text => text !== "");
