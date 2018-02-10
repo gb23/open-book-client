@@ -39,6 +39,13 @@ export const replaceSectionWithForm = (replacementInfo) => {
         replacementInfo
     }
 }
+
+export const replaceFormWithSection = (replacementInfo) => {
+    return {
+        type: 'SECTION_RERENDER',
+        replacementInfo
+    }
+}
 // export const moveSectionRight = (section) => {
 //     return {
 //         type: 'SECTION_RIGHT',
