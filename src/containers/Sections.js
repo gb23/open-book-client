@@ -17,11 +17,12 @@ class Sections extends Component{
     }
 
     componentDidUpdate() {
-        if(this.formRef){
-            this.bottomForm.focus();
+        // if(this.formRef){
+        //     this.bottomForm.focus();
             
-        }
-        else if(this.divElement){
+        // }
+        // else 
+        if(this.divElement){
             this.divElement.focus();
         }
         //debugger;
@@ -199,7 +200,7 @@ class Sections extends Component{
         return found;
     }
     sectionCards = () => {
-        //debugger;
+        
         let nextId = this.props.sections[0].id;
         let pointer = this.props.sections[0].id;
         
@@ -266,7 +267,8 @@ class Sections extends Component{
                             }           
                         } 
                         let divRef = null;
-                        if(section.id === pointer && !props.sectionReplace.valid){
+                        if(section.id === pointer && !props.sectionReplace.valid && props.sectionCurrent.id !== -1 ){
+                            //debugger;
                             divRef = (el) => this.divElement = el;
                         } 
                         //else {
@@ -318,7 +320,7 @@ class Sections extends Component{
                 <h1> Sections Component</h1>
                 {this.props.loading ? "loading!!" : this.sectionCards().sectionCards} 
 
-                {!this.props.loading && !this.props.sectionReplace.valid ? < SectionForm divRef={this.formRef ? (el) => this.bottomForm = el : null} section={{id: -1}} onDown={this.handleKeyDown} onSelect={this.handleSelect} sectionToAddTo={this.sectionCards().sectionToAddTo} /> : "" }
+                {!this.props.loading && !this.props.sectionReplace.valid ? < SectionForm divRef={this.formRef ? (el) => this.divElement = el : null} section={{id: -1}} onDown={this.handleKeyDown} onSelect={this.handleSelect} sectionToAddTo={this.sectionCards().sectionToAddTo} /> : "" }
             </div>
         );
     }  
