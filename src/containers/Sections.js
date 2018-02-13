@@ -5,9 +5,6 @@ import SectionCard from '../components/SectionCard'
 import { getSections, upVoteSection, replaceSectionWithForm, setCurrentSection, setPath } from '../actions/sections';
 import SectionForm from './SectionForm'
 
-
- 
-
 class Sections extends Component{
     constructor(props){
         super(props)
@@ -16,7 +13,7 @@ class Sections extends Component{
     }
 
     componentDidMount() {
-        this.props.getSections().then(() => this.props.setCurrentSection(this.props.sections[0]))       
+        this.props.getSections()     
     }
 
     componentDidUpdate() {
@@ -202,7 +199,7 @@ class Sections extends Component{
         return found;
     }
     sectionCards = () => {
- 
+        //debugger;
         let nextId = this.props.sections[0].id;
         let pointer = this.props.sections[0].id;
         
