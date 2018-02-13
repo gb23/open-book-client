@@ -3,9 +3,10 @@ import React from 'react';
 const SectionCard = (props) => {
     return (
         <div  key={props.section.id} className="center mw5 mw6-ns br3 hidden ba b--black-10 SectionCard" 
-        tabIndex="0" onKeyDown={(event) => props.onDown(event, props.section)}
-        onClick={ (event) => props.onSelect(event, props.section) }
-        autoFocus={props.selected}
+            tabIndex="0" onKeyDown={(event) => props.onDown(event, props.section)}
+             onClick={ (event) => props.onSelect(event, props.section) }
+             //onFocus={ (event) => props.onSelect(event, props.section) }
+            ref={ props.divRef }
         > 
          
             <h1 className="SectionTop f6 br3  br--top bg-near-black white mv0 pv2 ph3">{props.section.id}</h1>
