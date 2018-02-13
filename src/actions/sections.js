@@ -18,14 +18,12 @@ const addSection = sections => {
         sections
     };
 }
-
 const sectionUpVote = (sectionId) => {
     return {
         type: 'SECTION_UPVOTE',
         sectionId
     };
 }
-
 export const setCurrentSection = (section) => {
     //debugger;
     return {
@@ -39,11 +37,17 @@ export const replaceSectionWithForm = (replacementInfo) => {
         replacementInfo
     }
 }
-
 export const replaceFormWithSection = (replacementInfo) => {
     return {
         type: 'SECTION_RERENDER',
         replacementInfo
+    }
+}
+export const setPath = (path) => {
+    //debugger;
+    return {
+        type: 'SECTION_GET_PATH',
+        path
     }
 }
 // export const moveSectionRight = (section) => {
@@ -85,6 +89,7 @@ export const getSections = () => {
             .catch(error => console.log(error));
     }
 }
+
 export const createSection = (section) => {
     return dispatch => {
         return fetch(`${API_URL}/sections`, {
@@ -102,16 +107,3 @@ export const createSection = (section) => {
             .catch(error => console.log(error));
     }
 }
-
-// export function fetchSections(){
-//     return function(dispatch){
-//         dispatch({type: 'LOADING_SECTIONS'})
-//         return fetch(`${API_URL}/sections`)
-//           .then(res => {
-//             return res.json()
-//           }).then(responseJson => {
-//             dispatch({type: 'FETCH_SECTIONS', payload: responseJson.sections})
-//         })
-//       }
-// }
-
