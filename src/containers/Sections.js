@@ -207,7 +207,7 @@ class Sections extends Component{
 
         if (this.props.sectionCurrent){//&& this.props.sectionCurrent.id !== -1){
             if(this.props.sectionCurrent.id === -1){
-                debugger;
+                //debugger;
                 pointer = this.sectionList[this.sectionList.length - 1];
                 this.formRef = true;
                 //make form y focused
