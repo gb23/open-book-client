@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { updateSectionFormData } from '../actions/sectionForm'
-import { createSection, setCurrentSection, replaceFormWithSection } from '../actions/sections'
+import { createSection, setCurrentSection } from '../actions/sections'
+//replaceFormWithSection
 
 // doesn't have to be a class.  is a stateless
 class SectionForm extends Component {
@@ -31,10 +32,10 @@ class SectionForm extends Component {
         const nextSection = {id: nextId, ...sectionFormData}
         //this.props.sections.find(section => section.id === nextId)
         //debugger;
-        this.props.setCurrentSection(nextSection);
+        this.props.setCurrentSection({...nextSection, valid: false});
         //debugger;
        //make redux store sectionReplace.valid = false
-        this.props.replaceFormWithSection({valid: false});
+        //this.props.replaceFormWithSection({valid: false});
         
     }
 
@@ -59,7 +60,7 @@ class SectionForm extends Component {
                                 type="text" name="text" value={text} 
                     />
                     <div>
-                        <button  type="submit">Create Section</button>
+                        <button  type="button">Create Section</button>
                     </div>
                 </form>
             </div>
@@ -74,4 +75,5 @@ const mapStateToProps = state => {
         sectionFormData: state.sectionFormData
     }
 }
-export default connect(mapStateToProps, { setCurrentSection, updateSectionFormData, replaceFormWithSection, createSection})(SectionForm);
+export default connect(mapStateToProps, { setCurrentSection, updateSectionFormData,  createSection })(SectionForm);
+//replaceFormWithSection,
