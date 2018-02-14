@@ -19,7 +19,7 @@ class SectionForm extends Component {
        
         
         const sectionFormData = {...this.props.sectionFormData, prev_id: this.props.sectionToAddTo }
-        
+      //  debugger
         this.props.createSection(sectionFormData);
         
         //const props = this.props;  
@@ -46,7 +46,7 @@ class SectionForm extends Component {
         return(
             <div tabIndex="0" className="center mw5 mw6-ns br3 hidden ba b--black-10 SectionCard" 
             onKeyDown={this.props.onDown ? (event) => this.props.onDown(event, this.props.section) : () => ""}
-            onFocus={this.props.onSelect ? (event) => this.props.onSelect(event, this.props.section) : () => ""}
+            onClick={this.props.onSelect ? (event) => this.props.onSelect(event, this.props.section) : () => ""}
             ref={ this.props.divRef }
             >
              <h1 className="SectionTop f6 br3  br--top bg-near-black white mv0 pv2 ph3">Add a new section</h1>
@@ -55,11 +55,11 @@ class SectionForm extends Component {
                     <label htmlFor="text">Text:</label>
                     
                     <textarea onChange={this.handleOnChange} 
-                                onFocus={(event) => event.stopPropagation()} 
+                                onClick={(event) => event.stopPropagation()} 
                                 type="text" name="text" value={text} 
                     />
                     <div>
-                        <button type="submit">Create Section</button>
+                        <button  type="submit">Create Section</button>
                     </div>
                 </form>
             </div>
