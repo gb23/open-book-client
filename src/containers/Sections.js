@@ -13,7 +13,7 @@ class Sections extends Component{
     }
 
     componentDidMount() {
-        this.props.getSections()     
+        this.props.getSections().then(() => this.props.setCurrentSection(this.props.sections[0]))
     }
 
     componentDidUpdate() {
@@ -70,17 +70,53 @@ class Sections extends Component{
     }
     handleArrow = (keyName, section) => {      
         if (keyName === "ArrowDown" || keyName === "ArrowUp"){
+            //debugger;
             //find sectionCurrent index in sectionList
-            //
+            const lastIndex = this.sectionList.length - 1;
+            const currentIndex = this.sectionList.indexOf(this.props.sectionCurrent.id)
+            let nextId = null;
             //if first, only enable down arrow
-            //    
-            //else if key is 0 (x-form: last, the , enable down arrow but make currentSection the one with id = 0??
-            //else if last isn't 0, there's the y-form to go to
-            //else
-            //     if up arrow
-            //          use sectionList[currentIndex - 1] to find section.  make this section current section
-            //     if down arrow
-            //          use sectionList[currentIndex + 1] to find section.  make this section current section
+            if (currentIndex === 0 && this.sectionList.length > 1){
+                if(keyName === "ArrowDown"){
+                    nextId = this.sectionList[currentIndex + 1];
+                }  
+            }
+            //else you're on an x-form.  can arrow up only
+            else if (currentIndex === lastIndex && this.props.sectionCurrent.id === 0 && this.sectionList.length > 1){
+                //debugger;
+                if (keyName === "ArrowUp"){
+                    nextId = this.sectionList[lastIndex - 1]
+                    this.props.replaceSectionWithForm({valid: false})
+                }
+                
+            }
+            //else if you're on last and last isn't 0, there's the y-form to go to
+            else if(currentIndex === lastIndex && this.props.sectionCurrent.id !== 0 && keyName === "ArrowDown" && this.sectionList.length > 1){
+                    nextId = -1;
+            }
+            //else if you are on a y-form and you arrow up, go to last index of sectionList
+            else if(this.props.sectionCurrent.id === -1 && this.sectionList.length > 1){
+                if(keyName === "ArrowUp"){
+                    nextId = this.sectionList[lastIndex]
+                }
+            }
+            else if(keyName === "ArrowUp" && this.sectionList.length > 1){
+                nextId = this.sectionList[currentIndex - 1];
+            }
+            else if(keyName === "ArrowDown" && this.sectionList.length > 1){
+                nextId = this.sectionList[currentIndex + 1];
+            }
+            if(nextId){
+                if (nextId < 1){
+                    const prevID = this.props.sections.find(section => section.id === this.sectionList[lastIndex]).id;
+                    this.props.setCurrentSection({id: -1, prev_id: prevID, next_ids:[-1]});
+                } else {
+                    const nextSection = this.props.sections.find(section => section.id === nextId);
+                    this.props.setCurrentSection(nextSection);
+                }
+            }
+            
+            
 
         } else if (keyName === "ArrowLeft" || keyName === "ArrowRight"){
 
@@ -148,10 +184,10 @@ class Sections extends Component{
             } else {
                 if(keyName === "ArrowRight"){
                     //you cannot arrow right because you are on the parent of all nodes.  add UI animation so user knows can't arrow right.
-                    console.log("you are at the top and cannot therefore move right");
+                    console.log("you are at the top or bottom and cannot therefore move right");
                     
                 } else if (keyName === "ArrowLeft"){                        
-                    console.log("you are at the top and cannot therefore move left");
+                    console.log("you are at the top or bottom and cannot therefore move left");
                 }
             }
         }
@@ -160,10 +196,12 @@ class Sections extends Component{
         //debugger;
     }
     handleSelect = (event, section) => {
-        event.stopPropagation();
+     //   event.stopPropagation();
         //debugger;
         console.log(section.id, " has been focused")
-        this.props.setCurrentSection(section)//.then(
+        
+        this.props.setCurrentSection({id: section.id, prev_id: this.sectionList[this.sectionList.length - 1]})//.then(
+            //debugger;
             // () => {
             //     if (this.props.sectionCurrent.id !== 0){
             //         this.props.replaceSectionWithForm({valid: false});
@@ -207,16 +245,24 @@ class Sections extends Component{
         let idHighestVotes = -1
 
         if (this.props.sectionCurrent){//&& this.props.sectionCurrent.id !== -1){
-            if(this.props.sectionCurrent.id === -1){
+            //arrow down to bottom form (y-form)
+            if(this.props.sectionCurrent.id === -1 && this.props.sectionCurrent.prev_id){
+                pointer = this.props.sectionCurrent.prev_id
+                this.formRef = true;
+            }
+            //submit bottom form (y-form)
+            else if(this.props.sectionCurrent.id === -1){
                 //debugger;
                 pointer = this.sectionList[this.sectionList.length - 1];
-                this.formRef = true;
+                //this.formRef = true;
                 //make form y focused
             }
             else if(this.props.sectionReplace.valid === true){
                 //when we want to show an x-form, make sure that the parent of the x-form is the pointer so it and its ancestors will be shown.
+                this.formRef = false;
                 pointer = parseInt(this.props.sectionReplace.sectionToReplace.prev_id, 10);
             } else {
+               this.formRef = false;
                pointer = this.props.sectionCurrent.id;
             }
         }
@@ -285,7 +331,7 @@ class Sections extends Component{
 
            // this.props.setPath(path);
             
-            let sectionToAddTo = -1;
+            let sectionToAddTo = -5;
         
             //adds to the last rendered card when replaceSection = false.
             //add this: 
@@ -293,7 +339,6 @@ class Sections extends Component{
             if (sectionCards.slice(-1)[0]){
                 sectionToAddTo = sectionCards.slice(-1)[0].key
             }       
-             
             return {sectionCards, sectionToAddTo} ;
     }
 //     updatePath = (sectionList) => {
@@ -320,7 +365,7 @@ class Sections extends Component{
                 <h1> Sections Component</h1>
                 {this.props.loading ? "loading!!" : this.sectionCards().sectionCards} 
 
-                {!this.props.loading && !this.props.sectionReplace.valid ? < SectionForm divRef={this.formRef ? (el) => this.divElement = el : null} section={{id: -1}} onDown={this.handleKeyDown} onSelect={this.handleSelect} sectionToAddTo={this.sectionCards().sectionToAddTo} /> : "" }
+                {!this.props.loading && !this.props.sectionReplace.valid ? < SectionForm divRef={this.formRef ? (el) => this.divElement = el : null } section={{id: -1}} onDown={this.handleKeyDown} onSelect={this.handleSelect} sectionToAddTo={this.sectionCards().sectionToAddTo} /> : "" }
             </div>
         );
     }  
