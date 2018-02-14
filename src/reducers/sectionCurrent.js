@@ -1,4 +1,4 @@
-const initialState = {id: null}; 
+const initialState = {id: null, valid: false}; 
 
 
 export default ( state = initialState , action) => {
