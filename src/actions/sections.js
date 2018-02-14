@@ -1,12 +1,9 @@
 import { resetSectionForm } from './sectionForm';
 
-
 const API_URL = process.env.REACT_APP_API_URL;
 
 // ** Action Creators **
-
 const setSections = sections => {
-    //debugger;
      return {
         type: 'GET_SECTIONS_SUCCESS',
         sections 
@@ -43,26 +40,6 @@ export const replaceFormWithSection = (replacementInfo) => {
         replacementInfo
     }
 }
-export const setPath = (path) => {
-    //debugger;
-    return {
-        type: 'SECTION_GET_PATH',
-        path
-    }
-}
-// export const moveSectionRight = (section) => {
-//     return {
-//         type: 'SECTION_RIGHT',
-//         section
-//     }
-// }
-
-// export const moveSectionLeft = (section) => {
-//     return {
-//         type: 'SECTION_LEFT',
-//         section
-//     }
-// }
 
 // ** Async Actions **
 export const upVoteSection = (section) => {
