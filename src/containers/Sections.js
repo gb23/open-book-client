@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import './Sections.css'
 import SectionCard from '../components/SectionCard'
-import { getSections, upVoteSection, replaceSectionWithForm, setCurrentSection, setPath } from '../actions/sections';
+import { getSections, upVoteSection, setCurrentSection } from '../actions/sections';
+//replaceSectionWithForm,
 import SectionForm from './SectionForm'
 
 class Sections extends Component{
@@ -13,7 +14,7 @@ class Sections extends Component{
     }
 
     componentDidMount() {
-        this.props.getSections().then(() => this.props.setCurrentSection(this.props.sections[0]))
+        this.props.getSections().then(() => this.props.setCurrentSection({...this.props.sections[0], valid: false}))
     }
 
     componentDidUpdate() {
@@ -86,7 +87,7 @@ class Sections extends Component{
                 //debugger;
                 if (keyName === "ArrowUp"){
                     nextId = this.sectionList[lastIndex - 1]
-                    this.props.replaceSectionWithForm({valid: false})
+        //            this.props.replaceSectionWithForm({valid: false})
                 }
                 
             }
@@ -109,10 +110,10 @@ class Sections extends Component{
             if(nextId){
                 if (nextId < 1){
                     const prevID = this.props.sections.find(section => section.id === this.sectionList[lastIndex]).id;
-                    this.props.setCurrentSection({id: -1, prev_id: prevID, next_ids:[-1]});
+                    this.props.setCurrentSection({id: -1, prev_id: prevID, next_ids:[-1], valid: false});
                 } else {
                     const nextSection = this.props.sections.find(section => section.id === nextId);
-                    this.props.setCurrentSection(nextSection);
+                    this.props.setCurrentSection({...nextSection, valid: false});
                 }
             }
             
@@ -123,23 +124,26 @@ class Sections extends Component{
             if(section.id === 0){
                 //debugger;
                 //this means we are arrowing while on a compose card
-                const parentSection = this.props.sections.find(sec => sec.id === parseInt(this.props.sectionReplace.sectionToReplace.prev_id, 10))
+                let nextSection = null;
+                const parentSection = this.props.sections.find(sec => sec.id === parseInt(this.props.sectionCurrent.sectionToReplace.prev_id, 10))
+                //this.props.sectionReplace.sectionToReplace.prev_id,
                 if(keyName === "ArrowLeft"){
                     // if left arrow, go to the parent' last next_id
-                    if (parentSection === undefined ){debugger;};
-                    const nextSection = this.props.sections.find(section => section.id === parentSection.next_ids[parentSection.next_ids.length - 1]);
-                    this.props.setCurrentSection(nextSection)
+                   
+                        nextSection = this.props.sections.find(section => section.id === parentSection.next_ids[parentSection.next_ids.length - 1]);
+            //        this.props.setCurrentSection(nextSection)
                     
                 } else if (keyName === "ArrowRight"){
                     // if right arrow, go to the parents first next_id
-                    const nextSection = this.props.sections.find(section => section.id === parentSection.next_ids[0]);
-                    this.props.setCurrentSection(nextSection)
+                        nextSection = this.props.sections.find(section => section.id === parentSection.next_ids[0]);
+          //          this.props.setCurrentSection(nextSection)
                 }
             
 
                 //debugger;
-                this.props.replaceSectionWithForm({valid: false})
-                console.log("sectionReplace is false")
+                this.props.setCurrentSection({...nextSection, valid: false})
+             //   this.props.replaceSectionWithForm({valid: false})
+                console.log("sectionCurrent is false")
                 //debugger;
 
 
@@ -171,13 +175,13 @@ class Sections extends Component{
                             debugger;
                             //set redux state replaceSection = {valid: true, sectionToReplace: sectionCurrent};
                             // trigger re-render
-                            this.props.setCurrentSection({id: 0})
-                            this.props.replaceSectionWithForm({valid: true, sectionToReplace: this.props.sectionCurrent});
+                            this.props.setCurrentSection({valid: true, sectionToReplace: this.props.sectionCurrent, id: 0})
+            //              this.props.replaceSectionWithForm({valid: true, sectionToReplace: this.props.sectionCurrent});
                         }
                     } else { //elseif boundary.index
                         //console.log("you can move,  boundary.direction")
-                        this.props.replaceSectionWithForm({valid: true, sectionToReplace: this.props.sectionCurrent});
-                        this.props.setCurrentSection({id: 0})
+                      //  this.props.replaceSectionWithForm({valid: true, sectionToReplace: this.props.sectionCurrent});
+                        this.props.setCurrentSection({valid: true, sectionToReplace: this.props.sectionCurrent,id: 0})
                         // else is last item in parent node's next_ids and cannot move right/left anymore.add UI animation so user knows can't arrow right/left.
                         console.log("you 'move'", boundary.direction);
                     }  
@@ -210,9 +214,9 @@ class Sections extends Component{
        // );
         //console.log(this.props.sectionCurrent.id," (this.props.sectionCurrent.id) shouldn't be 0")
         //this only words when you click twice away from form...
-        if (this.props.sectionCurrent.id !== 0){
-            this.props.replaceSectionWithForm({valid: false});
-        }
+        // if (this.props.sectionCurrent.id !== 0){
+        //     this.props.replaceSectionWithForm({valid: false});
+        // }
        //debugger;
     }
     ancestorOfPointer = (sectId, pointer) => {
@@ -257,10 +261,12 @@ class Sections extends Component{
                 //this.formRef = true;
                 //make form y focused
             }
-            else if(this.props.sectionReplace.valid === true){
+            else if(this.props.sectionCurrent.valid === true){
+                //sectionReplace.valid === true){
                 //when we want to show an x-form, make sure that the parent of the x-form is the pointer so it and its ancestors will be shown.
                 this.formRef = false;
-                pointer = parseInt(this.props.sectionReplace.sectionToReplace.prev_id, 10);
+                pointer = parseInt(this.props.sectionCurrent.sectionToReplace.prev_id, 10);
+              //  pointer = parseInt(this.props.sectionReplace.sectionToReplace.prev_id, 10);
             } else {
                this.formRef = false;
                pointer = this.props.sectionCurrent.id;
@@ -279,15 +285,20 @@ class Sections extends Component{
                     
                     const props = this.props
                    //0.
-                    if (props.sectionReplace.valid && section.id === props.sectionReplace.sectionToReplace.id){
+                    if (props.sectionCurrent.valid && section.id === props.sectionCurrent.sectionToReplace.id){
+                        //props.sectionReplace.sectionToReplace.id
+                        //props.sectionReplace.valid
                         //this.props.replaceSectionWithForm({valid: false});
                         nextId = -1;
-                        return < SectionForm divRef={el => this.divElement = el} key="0" section={{id: 0}} onDown={this.handleKeyDown} onSelect={this.handleSelect} sectionToAddTo={props.sectionReplace.sectionToReplace.prev_id} />
+                        return < SectionForm divRef={el => this.divElement = el} key="0" section={{id: 0}} onDown={this.handleKeyDown} onSelect={this.handleSelect} sectionToAddTo={props.sectionCurrent.sectionToReplace.prev_id} />
+                        // sectionToAddTo={props.sectionReplace.sectionToReplace.prev_id} 
                     } else {
-                        if(props.sectionReplace.valid && section.id === pointer){
+                        if(props.sectionCurrent.valid && section.id === pointer){
+                            //props.sectionReplace.valid
                         //if we are at the parent of the node to be replaced with an x-form
                         //make the nextId be the sectionToReplace
-                        nextId = props.sectionReplace.sectionToReplace.id;
+                        nextId = props.sectionCurrent.sectionToReplace.id
+                        //nextId = props.sectionReplace.sectionToReplace.id;
                         }
                         //1:
                         else {
@@ -313,7 +324,8 @@ class Sections extends Component{
                             }           
                         } 
                         let divRef = null;
-                        if(section.id === pointer && !props.sectionReplace.valid && props.sectionCurrent.id !== -1 ){
+                        if(section.id === pointer && !props.sectionCurrent.valid && props.sectionCurrent.id !== -1 ){
+                            //!props.sectionReplace.valid
                             //debugger;
                             divRef = (el) => this.divElement = el;
                         } 
@@ -365,7 +377,8 @@ class Sections extends Component{
                 <h1> Sections Component</h1>
                 {this.props.loading ? "loading!!" : this.sectionCards().sectionCards} 
 
-                {!this.props.loading && !this.props.sectionReplace.valid ? < SectionForm divRef={this.formRef ? (el) => this.divElement = el : null } section={{id: -1}} onDown={this.handleKeyDown} onSelect={this.handleSelect} sectionToAddTo={this.sectionCards().sectionToAddTo} /> : "" }
+                {!this.props.loading && !this.props.sectionCurrent.valid ? < SectionForm divRef={this.formRef ? (el) => this.divElement = el : null } section={{id: -1}} onDown={this.handleKeyDown} onSelect={this.handleSelect} sectionToAddTo={this.sectionCards().sectionToAddTo} /> : "" }
+            {/* !this.props.sectionReplace.valid */}
             </div>
         );
     }  
@@ -377,12 +390,11 @@ const mapStateToProps = (state) => {
         loading: state.sections.loading,
         sections: state.sections,
         sectionCurrent: state.sectionCurrent,
-        sectionReplace: state.sectionReplace,
-        sectionPath: state.sectionPath
     });
 }
+//  sectionReplace: state.sectionReplace,
+//  sectionPath: state.sectionPath
+export default connect(mapStateToProps, { getSections, upVoteSection,  setCurrentSection })(Sections);
 
-export default connect(mapStateToProps, { getSections, upVoteSection, replaceSectionWithForm, setCurrentSection, setPath })(Sections);
-
-
+//replaceSectionWithForm,, setPath
 
