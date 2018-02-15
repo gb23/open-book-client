@@ -4,14 +4,13 @@ export default ( state = {loading: true, list:[]}, action ) => {
         return action.sections;
 
     case 'CREATE_SECTION_SUCCESS':
-        //returning  action.sections.section, action.sections.sectionPrev
-        const indexPrev = state.findIndex(sectionObj => sectionObj.id === action.sections.sectionPrev.id);
+        const indexPrev = state.list.findIndex(sectionObj => sectionObj.id === action.sections.sectionPrev.id);
      
         return [
-            ...state.slice(0, indexPrev), 
+            ...state.list.slice(0, indexPrev), 
             {...action.sections.sectionPrev}, 
             {...action.sections.section},
-            ...state.slice(indexPrev + 1)
+            ...state.list.slice(indexPrev + 1)
         ].sort((A, B) => A.id - B.id);
 
     case 'SECTION_UPVOTE':
@@ -21,6 +20,8 @@ export default ( state = {loading: true, list:[]}, action ) => {
             ...state.slice(0, index), {...section, votes: section.votes + 1},
             ...state.slice(index + 1)
         ];
+    case 'LOADING':
+        return {list: [...state], loading: true};
     default:
         return state;
   }
