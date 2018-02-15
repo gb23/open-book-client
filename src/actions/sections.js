@@ -2,7 +2,7 @@ import { resetSectionForm } from './sectionForm';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-// ** Action Creators **
+// **** Action Creators ****
 const setSections = sections => {
      return {
         type: 'GET_SECTIONS_SUCCESS',
@@ -21,8 +21,12 @@ const sectionUpVote = (sectionId) => {
         sectionId
     };
 }
+const loading = () => {
+    return {
+        type: 'LOADING'
+    }
+}
 export const setCurrentSection = (section) => {
-    //debugger;
     return {
         type: 'SECTION_SET',
         section
@@ -41,7 +45,8 @@ export const replaceFormWithSection = (replacementInfo) => {
     }
 }
 
-// ** Async Actions **
+
+// **** Async Actions ****
 export const upVoteSection = (section) => {
     return dispatch => {
         return fetch(`${API_URL}/sections/${section.id}`, {
@@ -69,6 +74,7 @@ export const getSections = () => {
 
 export const createSection = (section) => {
     return dispatch => {
+        dispatch(loading())
         return fetch(`${API_URL}/sections`, {
             method: "POST",
             headers: {
