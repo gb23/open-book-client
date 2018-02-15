@@ -17,8 +17,6 @@ class SectionForm extends Component {
         event.preventDefault();  
 
         const sectionFormData = {...this.props.sectionFormData, prev_id: parseInt(this.props.sectionToAddTo, 10) }
-
-        debugger;
         this.props.createSection(sectionFormData)
 
         const nextId = parseInt(this.getGreatestSectionsId() + 1, 10);
