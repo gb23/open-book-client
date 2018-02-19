@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import './Sections.css'
 import SectionCard from '../components/SectionCard'
-import { getSections, upVoteSection, setCurrentSection } from '../actions/sections';
+import { getSections, upVoteSection, setCurrentSection, notLoading } from '../actions/sections';
+import { setComposition } from '../actions/composition';
 import SectionForm from './SectionForm'
-
+let counter = 1;
 class Sections extends Component{
     constructor(props){
         super(props)
@@ -12,7 +13,40 @@ class Sections extends Component{
         this.formRef = false
     }
     componentDidMount() {
-        this.props.getSections().then(() => this.props.setCurrentSection({...this.props.sections[0], valid: false}))
+        //find highest voted composition, set this as the setCurrentSection
+
+        /*
+        current problem: inside of getSections, we are dispatching and rendering.  the problem is during the render 
+        we are trying to determine which composition is needed.  that data comes after (then...).  so getSections needs to get the
+        data while still having a loading value. 'Then' we handle compositions, set current section and then 
+        turn off the loading.
+
+        */
+//if(!this.props.sections.list){
+            this.props.getSections().then(() => {
+                console.log("count: ", counter++);
+                this.handleCompositions(this.props.sections.list)
+                const composition = this.props.sections.list.find(section => section.id === this.props.composition.currentId)
+                this.props.setCurrentSection({...composition, valid: false})
+                this.props.notLoading();
+            
+            })//.then(() => {
+    
+           // const composition = this.props.sections.list.find(section => section.id === this.props.composition.currentId)
+          //  this.props.setCurrentSection({...composition, valid: false}).then(() => notLoading())
+      //  });
+
+
+
+//}
+        
+       
+            
+           // () => this.props.setCurrentSection({...this.props.sections[0], valid: false}))
+        /*
+        you want to go through all section object.  for the ones with prev_ids of -1, get the one with the highest votes (or made first)
+        then set that section to the setCurrentSection, like above.  Additionally, 
+        */
     }
     componentDidUpdate() {
         if(this.divElement){
@@ -28,8 +62,23 @@ class Sections extends Component{
         }
         
     }
+    handleCompositions = (sections) => {
+        const compositions = sections.filter(section => section.prev_id === -1);
+        let ids = [];
+        let highestVote = -1;
+        let compIdWithHigestVote = -1;
+        compositions.forEach( comp => {
+            ids = [...ids, comp.id]
+            //debugger;
+            if(comp.votes > highestVote){
+                highestVote = comp.votes
+                compIdWithHigestVote = comp.id
+            }
+        })
+        this.props.setComposition({ids: ids, currentId: compIdWithHigestVote});
+    }
     handleUpVote = (sectionId) => {
-        const sectionAddVote = this.props.sections.filter(section => section.id === sectionId);
+        const sectionAddVote = this.props.sections.list.filter(section => section.id === sectionId);
         this.props.upVoteSection(...sectionAddVote);
     }
     handleKeyDown = (event, section) => {
@@ -104,10 +153,10 @@ class Sections extends Component{
             }
             if(nextId){
                 if (nextId < 1){
-                    const prevID = this.props.sections.find(section => section.id === this.sectionList[lastIndex]).id;
+                    const prevID = this.props.sections.list.find(section => section.id === this.sectionList[lastIndex]).id;
                     this.props.setCurrentSection({id: -1, prev_id: prevID, next_ids:[-1], valid: false});
                 } else {
-                    const nextSection = this.props.sections.find(section => section.id === nextId);
+                    const nextSection = this.props.sections.list.find(section => section.id === nextId);
                     this.props.setCurrentSection({...nextSection, valid: false});
                 }
             }
@@ -120,17 +169,17 @@ class Sections extends Component{
                 //debugger;
                 //this means we are arrowing while on a compose card
                 let nextSection = null;
-                const parentSection = this.props.sections.find(sec => sec.id === parseInt(this.props.sectionCurrent.sectionToReplace.prev_id, 10))
+                const parentSection = this.props.sections.list.find(sec => sec.id === parseInt(this.props.sectionCurrent.sectionToReplace.prev_id, 10))
                 //this.props.sectionReplace.sectionToReplace.prev_id,
                 if(keyName === "ArrowLeft"){
                     // if left arrow, go to the parent' last next_id
                    
-                        nextSection = this.props.sections.find(section => section.id === parentSection.next_ids[parentSection.next_ids.length - 1]);
+                        nextSection = this.props.sections.list.find(section => section.id === parentSection.next_ids[parentSection.next_ids.length - 1]);
             //        this.props.setCurrentSection(nextSection)
                     
                 } else if (keyName === "ArrowRight"){
                     // if right arrow, go to the parents first next_id
-                        nextSection = this.props.sections.find(section => section.id === parentSection.next_ids[0]);
+                        nextSection = this.props.sections.list.find(section => section.id === parentSection.next_ids[0]);
           //          this.props.setCurrentSection(nextSection)
                 }
             
@@ -149,7 +198,7 @@ class Sections extends Component{
                 //get parent node:
             
                 //debugger;
-                const parentSection = this.props.sections.find(sec => sec.id === section.prev_id);
+                const parentSection = this.props.sections.list.find(sec => sec.id === section.prev_id);
 
                 const sectionIdIndexInNextID = parentSection.next_ids.indexOf(section.id)
                     //check if current section id is not last item in parent node's next_ids (for right arrow) OR is not first item (for left arrow).
@@ -160,7 +209,7 @@ class Sections extends Component{
                         const nextId = this.getNextId(parentSection, sectionIdIndexInNextID, boundary.direction)
                     
                         
-                        const nextSection = this.props.sections.find(section => section.id === nextId);//this.getNextId(parentSection, sectionIdIndexInNextID, boundary.direction));//nextId);
+                        const nextSection = this.props.sections.list.find(section => section.id === nextId);//this.getNextId(parentSection, sectionIdIndexInNextID, boundary.direction));//nextId);
                     
                         
                         if(nextSection){
@@ -210,7 +259,7 @@ class Sections extends Component{
         let found = false;
         let checkId = pointer;
         const locateSection = (checkId) => {
-            return this.props.sections.find(section => section.id === checkId)
+            return this.props.sections.list.find(section => section.id === checkId)
         }
         while (!done && sectId !== -1){
             const checkSection = locateSection(checkId);
@@ -228,9 +277,13 @@ class Sections extends Component{
         return found;
     }
     sectionCards = () => {
-        
-        let nextId = this.props.sections[0].id;
-        let pointer = this.props.sections[0].id;
+        //debugger;
+        const currentComp = this.props.sections.list.find(section => section.id === this.props.composition.currentId);
+        const currentCompIndex = this.props.sections.list.indexOf(currentComp);
+
+        const composition = this.props.sections.list.slice(currentCompIndex);
+        let nextId = composition[0].id;
+        let pointer = composition[0].id;
         
         let idHighestVotes = -1
        // debugger;
@@ -248,7 +301,8 @@ class Sections extends Component{
                 //make form y focused
             }
             //newly created from form will have an id that isn't yet part of this.props.sections. (it is one larger than the last)
-            else if (this.props.sectionCurrent.id === this.props.sections[this.props.sections.length - 1].id + 1){
+            else if (this.props.sectionCurrent.id === this.props.sections.list[this.props.sections.list.length - 1].id + 1){
+                console.log("THIS SHOULDN'T GET HIT");
                 pointer = this.props.sectionCurrent.prev_id
                // const sectionToUpdate = this.props.sections.find(section => section.id === pointer)
                // sectionToUpdate.next_ids = [...sectionToUpdate.next_ids, this.props.sectionCurrent.id]
@@ -265,8 +319,9 @@ class Sections extends Component{
                pointer = this.props.sectionCurrent.id;
             }
         }
-
-         const sectionCards =   this.props.sections.map(section =>{
+        //debugger;
+         
+         const sectionCards =   composition.map(section =>{
                 // 1st time: this will be equal
                 if (section.id === nextId){
                     const props = this.props
@@ -286,7 +341,7 @@ class Sections extends Component{
 
                     if (section.prev_id !== -1){
                         //debugger;
-                        prevSection = this.props.sections.find(sec => sec.id === section.prev_id)
+                        prevSection = composition.find(sec => sec.id === section.prev_id)
                         totalCardsInRow = prevSection.next_ids.length;
                         locationInRow = prevSection.next_ids.indexOf(section.id) + 1 //location in next_Ids array
                         
@@ -320,9 +375,9 @@ class Sections extends Component{
                                 idHighestVotes = section.next_ids[0] //default is first in array
                                 section.next_ids.forEach(nextid => {
 
-                                    const segmentNext = this.props.sections.find(sect => sect.id === nextid)
+                                    const segmentNext = composition.find(sect => sect.id === nextid)
 
-                                    const segmentOfHighestVotes = this.props.sections.find(sect => sect.id === idHighestVotes)
+                                    const segmentOfHighestVotes = composition.find(sect => sect.id === idHighestVotes)
 
                                     if(segmentNext && segmentOfHighestVotes && segmentNext.votes > segmentOfHighestVotes.votes){
                                         idHighestVotes = nextid;
@@ -376,7 +431,8 @@ const mapStateToProps = (state) => {
         sections: state.sections,
         loading: state.sections.loading,
         sectionCurrent: state.sectionCurrent,
+        composition: state.composition
     });
 }
-export default connect(mapStateToProps, { getSections, upVoteSection,  setCurrentSection })(Sections);
+export default connect(mapStateToProps, { getSections, upVoteSection,  setCurrentSection, setComposition, notLoading })(Sections);
 
