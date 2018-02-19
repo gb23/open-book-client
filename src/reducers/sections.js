@@ -1,27 +1,30 @@
-export default ( state = {loading: true, list:[]}, action ) => {
+export default ( state = {loading: true, list: null}, action ) => {
   switch(action.type) {
+     
     case 'GET_SECTIONS_SUCCESS':
-        return action.sections;
+    //debugger;
+        return {list: [...action.sections], loading: true}
 
     case 'CREATE_SECTION_SUCCESS':
         const indexPrev = state.list.findIndex(sectionObj => sectionObj.id === action.sections.sectionPrev.id);
-     
-        return [
+        return {list: [
             ...state.list.slice(0, indexPrev), 
             {...action.sections.sectionPrev}, 
             {...action.sections.section},
             ...state.list.slice(indexPrev + 1)
-        ].sort((A, B) => A.id - B.id);
+        ].sort((A, B) => A.id - B.id), loading: false};
 
     case 'SECTION_UPVOTE':
-        const index = state.findIndex(sectionObj => sectionObj.id === action.sectionId);
-        const section = state[index];
-        return [
-            ...state.slice(0, index), {...section, votes: section.votes + 1},
-            ...state.slice(index + 1)
-        ];
+        const index = state.list.findIndex(sectionObj => sectionObj.id === action.sectionId);
+        const section = state.list[index];
+        return {list: [
+            ...state.list.slice(0, index), {...section, votes: section.votes + 1},
+            ...state.list.slice(index + 1)
+        ], loading: false};
     case 'LOADING':
-        return {list: [...state], loading: true};
+        return {list: [...state.list], loading: true};
+    case 'NOT_LOADING':
+        return {list: [...state.list], loading: false};
     default:
         return state;
   }
