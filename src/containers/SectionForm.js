@@ -25,7 +25,7 @@ class SectionForm extends Component {
         this.props.setCurrentSection({...nextSection, valid: false});
     }
 
-    getGreatestSectionsId = () => parseInt(this.props.sections.slice(-1)[0].id, 10)
+    getGreatestSectionsId = () => parseInt(this.props.sections.list.slice(-1)[0].id, 10)
 
     render(){
         const { text } = this.props.sectionFormData
