@@ -3,7 +3,7 @@ import thunk from 'redux-thunk';
 import sections from './reducers/sections';
 import sectionFormData from './reducers/sectionFormData';
 import sectionCurrent from './reducers/sectionCurrent';
-//import sectionReplace from './reducers/sectionReplace';
+import composition from './reducers/composition';
 //import sectionPath from './reducers/sectionPath';
 
 const middleware = [thunk];
@@ -12,6 +12,7 @@ const reducers = combineReducers({
     sections,
     sectionFormData,
     sectionCurrent,
+    composition
 })
 
 export default createStore(
