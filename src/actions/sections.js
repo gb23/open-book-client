@@ -1,4 +1,5 @@
 import { resetSectionForm } from './sectionForm';
+// import { setComposition } from './composition';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -23,7 +24,12 @@ const sectionUpVote = (sectionId) => {
 }
 const loading = () => {
     return {
-        type: 'LOADING'
+        type: 'LOADING',
+    }
+}
+export const notLoading = () => {
+    return {
+        type: 'NOT_LOADING',
     }
 }
 export const setCurrentSection = (section) => {
@@ -67,7 +73,8 @@ export const getSections = () => {
     return dispatch => {
         return fetch(`${API_URL}/sections`)
             .then(response => response.json())
-            .then(sections => dispatch(setSections(sections)))
+            .then(sections => {
+                dispatch(setSections(sections))}) //loading is made true in setSections
             .catch(error => console.log(error));
     }
 }
