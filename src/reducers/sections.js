@@ -6,13 +6,20 @@ export default ( state = {loading: true, list: null}, action ) => {
         return {list: [...action.sections], loading: true}
 
     case 'CREATE_SECTION_SUCCESS':
-        const indexPrev = state.list.findIndex(sectionObj => sectionObj.id === action.sections.sectionPrev.id);
-        return {list: [
-            ...state.list.slice(0, indexPrev), 
-            {...action.sections.sectionPrev}, 
-            {...action.sections.section},
-            ...state.list.slice(indexPrev + 1)
-        ].sort((A, B) => A.id - B.id), loading: false};
+        let returnVal = null;
+        if (action.sections.sectionPrev){
+            const indexPrev = state.list.findIndex(sectionObj => sectionObj.id === action.sections.sectionPrev.id);
+            returnVal = {list: [
+                ...state.list.slice(0, indexPrev), 
+                {...action.sections.sectionPrev}, 
+                {...action.sections.section},
+                ...state.list.slice(indexPrev + 1)
+            ].sort((A, B) => A.id - B.id), loading: false};
+        }
+        else {
+            returnVal = {list: [...state.list, {...action.sections.section}].sort((A, B) => A.id - B.id), loading: false};
+        }
+        return returnVal;
 
     case 'SECTION_UPVOTE':
         const index = state.list.findIndex(sectionObj => sectionObj.id === action.sectionId);
