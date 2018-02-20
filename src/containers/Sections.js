@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
+import { Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import './Sections.css'
 import SectionCard from '../components/SectionCard'
-import { getSections, upVoteSection, setCurrentSection, notLoading } from '../actions/sections';
+import { getSections, upVoteSection, setCurrentSection, notLoading, } from '../actions/sections';
 import { setComposition } from '../actions/composition';
 import SectionForm from './SectionForm'
-let counter = 1;
+
 class Sections extends Component{
     constructor(props){
         super(props)
@@ -13,40 +14,14 @@ class Sections extends Component{
         this.formRef = false
     }
     componentDidMount() {
-        //find highest voted composition, set this as the setCurrentSection
+        this.props.getSections().then(() => {
 
-        /*
-        current problem: inside of getSections, we are dispatching and rendering.  the problem is during the render 
-        we are trying to determine which composition is needed.  that data comes after (then...).  so getSections needs to get the
-        data while still having a loading value. 'Then' we handle compositions, set current section and then 
-        turn off the loading.
-
-        */
-//if(!this.props.sections.list){
-            this.props.getSections().then(() => {
-                console.log("count: ", counter++);
-                this.handleCompositions(this.props.sections.list)
-                const composition = this.props.sections.list.find(section => section.id === this.props.composition.currentId)
-                this.props.setCurrentSection({...composition, valid: false})
-                this.props.notLoading();
-            
-            })//.then(() => {
-    
-           // const composition = this.props.sections.list.find(section => section.id === this.props.composition.currentId)
-          //  this.props.setCurrentSection({...composition, valid: false}).then(() => notLoading())
-      //  });
-
-
-
-//}
+            this.handleCompositions(this.props.sections.list)
+            const composition = this.props.sections.list.find(section => section.id === this.props.composition.currentId)
+            this.props.setCurrentSection({...composition, valid: false})
+            this.props.notLoading();
         
-       
-            
-           // () => this.props.setCurrentSection({...this.props.sections[0], valid: false}))
-        /*
-        you want to go through all section object.  for the ones with prev_ids of -1, get the one with the highest votes (or made first)
-        then set that section to the setCurrentSection, like above.  Additionally, 
-        */
+        })
     }
     componentDidUpdate() {
         if(this.divElement){
@@ -113,7 +88,7 @@ class Sections extends Component{
         }
         return nextId;
     }
-    handleArrow = (keyName, section) => {      
+    handleArrow = (keyName, section) => {
         if (keyName === "ArrowDown" || keyName === "ArrowUp"){
             //debugger;
             //find sectionCurrent index in sectionList
@@ -166,29 +141,54 @@ class Sections extends Component{
         } else if (keyName === "ArrowLeft" || keyName === "ArrowRight"){
 
             if(section.id === 0){
-                //debugger;
-                //this means we are arrowing while on a compose card
-                let nextSection = null;
-                const parentSection = this.props.sections.list.find(sec => sec.id === parseInt(this.props.sectionCurrent.sectionToReplace.prev_id, 10))
-                //this.props.sectionReplace.sectionToReplace.prev_id,
-                if(keyName === "ArrowLeft"){
-                    // if left arrow, go to the parent' last next_id
-                   
-                        nextSection = this.props.sections.list.find(section => section.id === parentSection.next_ids[parentSection.next_ids.length - 1]);
-            //        this.props.setCurrentSection(nextSection)
+               // debugger;
+               if(this.props.sectionCurrent.prev_id !== -1){
+                        //debugger;
+                    //this means we are arrowing while on a compose card
+                    let nextSection = null;
+                    const parentSection = this.props.sections.list.find(sec => sec.id === parseInt(this.props.sectionCurrent.sectionToReplace.prev_id, 10))
+                    //this.props.sectionReplace.sectionToReplace.prev_id,
+                    if(keyName === "ArrowLeft"){
+                        // if left arrow, go to the parent' last next_id
                     
-                } else if (keyName === "ArrowRight"){
-                    // if right arrow, go to the parents first next_id
-                        nextSection = this.props.sections.list.find(section => section.id === parentSection.next_ids[0]);
-          //          this.props.setCurrentSection(nextSection)
-                }
-            
+                            nextSection = this.props.sections.list.find(section => section.id === parentSection.next_ids[parentSection.next_ids.length - 1]);
+                //        this.props.setCurrentSection(nextSection)
+                        
+                    } 
+                    else if (keyName === "ArrowRight"){
+                        // if right arrow, go to the parents first next_id
+                            nextSection = this.props.sections.list.find(section => section.id === parentSection.next_ids[0]);
+            //          this.props.setCurrentSection(nextSection)
+                    }
+                
 
-                //debugger;
-                this.props.setCurrentSection({...nextSection, valid: false})
-             //   this.props.replaceSectionWithForm({valid: false})
-                console.log("sectionCurrent is false")
-                //debugger;
+                    //debugger;
+                    this.props.setCurrentSection({...nextSection, valid: false})
+                //   this.props.replaceSectionWithForm({valid: false})
+                    console.log("sectionCurrent is false")
+                    //debugger;
+               }
+               else {
+                    //you are on a x-form to create a brand new composition
+                    
+                    let compId = null;
+                    //debugger;
+                    if(keyName === "ArrowLeft"){
+                        //arrow left will bring to last composition
+                        compId = this.props.composition.ids[this.props.composition.ids.length - 1]
+
+                    }
+                    else if (keyName === "ArrowRight"){
+                        compId = this.props.composition.ids[0]
+                    }
+                    const nextSection = this.props.sections.list.find(sec => sec.id === compId);
+                    this.props.setCurrentSection({...nextSection, valid: false})
+                    this.props.setComposition({...this.props.composition, currentId: nextSection.id});
+                
+                    console.log("sectionCurrent is false")
+                    
+                }
+                
 
 
             } else if(section.prev_id >= 0){
@@ -230,18 +230,59 @@ class Sections extends Component{
                         console.log("you 'move'", boundary.direction);
                     }  
             } else {
+                const currentCompIndex = this.props.composition.ids.indexOf(this.props.composition.currentId);
+                const compArraySize = this.props.composition.ids.length;
+
                 if(keyName === "ArrowRight"){
-                    //you cannot arrow right because you are on the parent of all nodes.  add UI animation so user knows can't arrow right.
-                    console.log("you are at the top or bottom and cannot therefore move right");
+        
+                    
+                    if (section.id === -1){
+                        console.log("you are at the bottom and cannot therefore move right");
+                    }
+                    else {
+                        console.log("you are at the top and move right");
+                        // you are at the top and are arrowing right
+                        //if there are more compositions to arrow right to:
+                        if (currentCompIndex !== compArraySize - 1){
+                            const composition = this.props.sections.list.find(comp => comp.id === this.props.composition.ids[currentCompIndex + 1])
+                            this.props.setCurrentSection({...composition, prev_id: -1, valid: false})
+                            this.props.setComposition({...this.props.composition, currentId: this.props.composition.ids[currentCompIndex + 1]});
+                        }
+                        //you are at the right end of the composition array.  Arrowing right will produce a new composition form
+                        else {
+                            const composition = this.props.sections.list.find(comp => comp.id === this.props.composition.ids[currentCompIndex])
+                            this.props.setCurrentSection({valid: true, sectionToReplace: composition, id: 0, prev_id: -1})
+                        }
+                        
+
+                        
+
+                    }
+                    
                     
                 } else if (keyName === "ArrowLeft"){                        
-                    console.log("you are at the top or bottom and cannot therefore move left");
+                    if (section.id === -1){
+                        console.log("you are at the bottom and cannot therefore move left");
+                    }
+                    else {
+                        console.log("you are at the top and move left");
+                        // you are at the top and are arrowing right
+                        if (currentCompIndex !== 0){
+                            
+                            const composition = this.props.sections.list.find(comp => comp.id === this.props.composition.ids[currentCompIndex - 1])
+                            this.props.setCurrentSection({...composition, prev_id: -1, valid: false})
+                            this.props.setComposition({...this.props.composition, currentId: this.props.composition.ids[currentCompIndex - 1]});
+
+                        } 
+                        //you are at the left end of the composition array.  Arrowing left will produce a new composition form
+                        else {
+                            const composition = this.props.sections.list.find(comp => comp.id === this.props.composition.ids[currentCompIndex])
+                            this.props.setCurrentSection({valid: true, sectionToReplace: composition, id: 0, prev_id: -1})
+                        }
+                    }
                 }
             }
         }
-      //  this.forceUpdate();
-       // this.props.setPath(path); 
-        //debugger;
     }
     handleSelect = (event, section) => {
         console.log(section.id, " has been clicked")
@@ -301,13 +342,13 @@ class Sections extends Component{
                 //make form y focused
             }
             //newly created from form will have an id that isn't yet part of this.props.sections. (it is one larger than the last)
-            else if (this.props.sectionCurrent.id === this.props.sections.list[this.props.sections.list.length - 1].id + 1){
-                console.log("THIS SHOULDN'T GET HIT");
-                pointer = this.props.sectionCurrent.prev_id
-               // const sectionToUpdate = this.props.sections.find(section => section.id === pointer)
-               // sectionToUpdate.next_ids = [...sectionToUpdate.next_ids, this.props.sectionCurrent.id]
-               // debugger;
-            }
+            // else if (this.props.sectionCurrent.id === this.props.sections.list[this.props.sections.list.length - 1].id + 1){
+            //     console.log("THIS SHOULDN'T GET HIT");
+            //     pointer = this.props.sectionCurrent.prev_id
+            //    // const sectionToUpdate = this.props.sections.find(section => section.id === pointer)
+            //    // sectionToUpdate.next_ids = [...sectionToUpdate.next_ids, this.props.sectionCurrent.id]
+            //    // debugger;
+            // }
             else if(this.props.sectionCurrent.valid === true){
                 //sectionReplace.valid === true){
                 //when we want to show an x-form, make sure that the parent of the x-form is the pointer so it and its ancestors will be shown.
@@ -316,7 +357,10 @@ class Sections extends Component{
               //  pointer = parseInt(this.props.sectionReplace.sectionToReplace.prev_id, 10);
             } else {
                this.formRef = false;
+              // if (this.sectionList.find(section => section.id === this.props.sectionCurrent.id)){
                pointer = this.props.sectionCurrent.id;
+              // }
+               
             }
         }
         //debugger;
@@ -349,11 +393,16 @@ class Sections extends Component{
                     
                    //0.
                     if (props.sectionCurrent.valid && section.id === props.sectionCurrent.sectionToReplace.id){
+                        //debugger;
                         //props.sectionReplace.sectionToReplace.id
                         //props.sectionReplace.valid
                         //this.props.replaceSectionWithForm({valid: false});
+                        let label = "Add a NEW VERSION"
+                        if (section.prev_id === -1){
+                            label = "Create a NEW COMPOSITION"
+                        } 
                         nextId = -1;
-                        return < SectionForm divRef={el => this.divElement = el} key="0" section={{id: 0}} onDown={this.handleKeyDown} onSelect={this.handleSelect} sectionToAddTo={props.sectionCurrent.sectionToReplace.prev_id} name="Add a NEW VERSION" />
+                        return < SectionForm divRef={el => this.divElement = el} key="0" section={{id: 0}} onDown={this.handleKeyDown} onSelect={this.handleSelect} sectionToAddTo={props.sectionCurrent.sectionToReplace.prev_id} name={label} />
                         // sectionToAddTo={props.sectionReplace.sectionToReplace.prev_id} 
                     } else {
                         if(props.sectionCurrent.valid && section.id === pointer){
@@ -387,6 +436,7 @@ class Sections extends Component{
                             }           
                         } 
                         let divRef = null;
+                        
                         if(section.id === pointer && !props.sectionCurrent.valid && props.sectionCurrent.id !== -1 ){
                             divRef = (el) => this.divElement = el;
                         } 
@@ -413,13 +463,16 @@ class Sections extends Component{
     }
     render() {
         //something can go here...
-
+       // debugger;
         return(
             <div >
-                <h1> Sections Component</h1>
+            {/* <Switch> */}
+                {/* <Route exact path={`${this.props.match.url}/compositions/${this.props.composition.id}/sections/${this.props.sectionCurrent.id}`} */}
+                {/* render={()=> (!this.props.loading ? this.sectionCards().sectionCards : "loading!!" )} /> */}
                 {!this.props.loading ? this.sectionCards().sectionCards : "loading!!" } 
 
                 {!this.props.loading && !this.props.sectionCurrent.valid ? < SectionForm divRef={this.formRef ? (el) => this.divElement = el : null } section={{id: -1}} onDown={this.handleKeyDown} onSelect={this.handleSelect} sectionToAddTo={this.sectionCards().sectionToAddTo} name="Add NEW CONTENT"/> : "" }
+            {/* </Switch> */}
             </div>
         );
     }  
@@ -434,5 +487,5 @@ const mapStateToProps = (state) => {
         composition: state.composition
     });
 }
-export default connect(mapStateToProps, { getSections, upVoteSection,  setCurrentSection, setComposition, notLoading })(Sections);
+export default connect(mapStateToProps, { getSections, upVoteSection,  setCurrentSection, setComposition, notLoading, })(Sections);
 
