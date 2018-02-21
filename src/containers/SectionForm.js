@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import { updateSectionFormData } from '../actions/sectionForm'
 import { createSection, setCurrentSection } from '../actions/sections'
 import { setComposition } from '../actions/composition';
+import { push } from 'react-router-redux';
 
-// doesn't have to be a class.  is a stateless
 class SectionForm extends Component {
     handleOnChange = event => {
         const { name, value } = event.target;
@@ -16,18 +16,16 @@ class SectionForm extends Component {
     
     handleOnSubmit = (event) => {
         event.preventDefault();  
-       // debugger;
         const sectionFormData = {...this.props.sectionFormData, prev_id: parseInt(this.props.sectionToAddTo, 10) }
         this.props.createSection(sectionFormData)
 
         const nextId = parseInt(this.getGreatestSectionsId() + 1, 10);
         const nextSection = {id: nextId, ...sectionFormData}
-  
         this.props.setCurrentSection({...nextSection, valid: false});
         if(nextSection.prev_id === -1){
             this.props.setComposition({ids: [...this.props.composition.ids, nextSection.id] , currentId: nextSection.id});
+            this.props.push(`/compositions/${this.props.composition.ids.length + 1}`)
         }
-        
     }
 
     getGreatestSectionsId = () => parseInt(this.props.sections.list.slice(-1)[0].id, 10)
@@ -66,5 +64,4 @@ const mapStateToProps = state => {
         composition: state.composition
     }
 }
-export default connect(mapStateToProps, { setCurrentSection, updateSectionFormData, createSection, setComposition })(SectionForm);
-//replaceFormWithSection,
+export default connect(mapStateToProps, { setCurrentSection, updateSectionFormData, createSection, setComposition, push })(SectionForm);
