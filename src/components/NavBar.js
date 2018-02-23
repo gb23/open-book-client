@@ -3,18 +3,18 @@ import { NavLink } from 'react-router-dom';
 
 const NavBar = () => {
     return (
-        <div style={{ borderBottom: '2px solid black', paddingBottom: '10px', marginBottom: '12px'}} >
+        <div className="navContainer"  >
             <NavLink
-                style={{ marginRight: '10px' }}
+                style={{ marginLeft: '15px', marginTop: '5px' }}
                 to="/compositions"
             >
-            View
+                <i className="mt1 fa fa-pencil-square blue" title="Compositions"></i>
             </NavLink>
             <NavLink
-                style={{ marginRight: '10px' }}
+                style={{ marginRight: '15px', marginTop: '5px'  }}
                 to="/about"
             >
-            About
+                <i className="mt1 fa fa-question-circle blue" title="About"></i>
             </NavLink>
             
         </div>
