@@ -18,6 +18,7 @@ class SectionForm extends Component {
         event.preventDefault();  
         const sectionFormData = {...this.props.sectionFormData, prev_id: parseInt(this.props.sectionToAddTo, 10) }
         this.props.createSection(sectionFormData)
+        //
 
         const nextId = parseInt(this.getGreatestSectionsId() + 1, 10);
         const nextSection = {id: nextId, ...sectionFormData}
@@ -28,27 +29,46 @@ class SectionForm extends Component {
         }
     }
 
+    handleButtonColor = (name) => {
+        
+        let classString = "f6 link dim br1 ph3 pv2 mb2 dib white ";
+        if (name === "ADD CONTENT"){
+            classString += "bg-navy"
+        }
+        else if (name === "ADD VERSION"){
+            
+            classString += "bg-dark-red"
+        }
+        else {
+            // ADD COMPOSITION
+            classString += "bg-yellow"
+        }
+        return classString;
+
+
+    }
+
     getGreatestSectionsId = () => parseInt(this.props.sections.list.slice(-1)[0].id, 10)
 
     render(){
         const { text } = this.props.sectionFormData
 
         return(
-            <div tabIndex="0" className="center mw5 mw6-ns br3 hidden ba b--black-10 SectionCard" 
+            <div tabIndex="0" className="center SectionCard bt bb b--black-10" 
             onKeyDown={this.props.onDown ? (event) => this.props.onDown(event, this.props.section) : () => ""}
             onClick={this.props.onSelect ? (event) => this.props.onSelect(event, this.props.section) : () => ""}
             ref={ this.props.divRef }
             >
-             <h1 className="SectionTop f6 br3  br--top bg-near-black white mv0 pv2 ph3">{this.props.name}</h1>
+             <h5 className="sans-serif">{this.props.name}</h5>
                 <form onSubmit={this.handleOnSubmit}>
                     <label htmlFor="text">Text:</label>
                     
-                    <textarea onChange={this.handleOnChange} 
+                    <textarea className="" onChange={this.handleOnChange} 
                                 onClick={(event) => event.stopPropagation()} 
                                 type="text" name="text" value={text} 
                     />
                     <div>
-                        <button type="submit" >Create Section</button>
+                        <button className={this.handleButtonColor(this.props.name)} type="submit" >{`${this.props.name}`}</button>
                     </div>
                 </form>
             </div>
