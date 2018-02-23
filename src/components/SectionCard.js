@@ -11,14 +11,18 @@ const SectionCard = (props) => {
         > 
          
             {/* <h1 className="SectionTop f6 br3  br--top bg-near-black white mv0 pv2 ph3">{props.section.id}</h1> */}
-            <div className="pa3">
-                <p className="f6 f5-ns lh-copy measure mv0">{props.section.text}</p>
-             
-                <a onClick={ () => props.onVote(props.section.id)} className="link dim" href="#0"><i className="fa fa-thumbs-up"  />{props.section.votes}</a>
-                
-                <span style={{color: 'blue', marginLeft: '150px'}}>{props.location ? `${props.location}/${props.total}` : ""}</span>
-              
+            <div className="pl2 pr2 pb1 SectionCardText">
+                <p className="f6 f5-ns ">{props.section.text}</p>
+                {/* lh-copy measure mv0 */}
             </div>
+            <div className="cardData mt2">
+                <a onClick={ () => props.onVote(props.section.id)} className="ml2 link dim" href="#0"><i className="fa fa-thumbs-up blue"  />
+                    {props.section.votes}
+                </a>
+                
+                <span className="mr2 blue">{props.location ? `${props.location}/${props.total}` : ""}</span>
+            </div>
+            
             
         </div> 
     );
