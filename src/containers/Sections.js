@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 
 import SectionCard from '../components/SectionCard'
 import Loading from '../components/Loading'
+import CompositionLabel from '../components/CompositionLabel'
 import { getSections, upVoteSection, setCurrentSection, notLoading, } from '../actions/sections';
 import { setComposition } from '../actions/composition';
 import SectionForm from './SectionForm'
@@ -635,7 +636,7 @@ class Sections extends Component{
     }
     render() {
         //something can go here...
-      // debugger;
+      
         return( 
             <div>
             {/* <Switch> */}
@@ -647,11 +648,14 @@ class Sections extends Component{
                  <Route exact path={`${this.props.match.url}`}
                     render={()=> 
                         {
-                          return [<div key="-3">{`Composition ${this.props.match.params.id}`}</div>,!this.props.loading ? this.sectionCards().sectionCards : <Loading key="-1" />, 
-                                !this.props.loading && !this.props.sectionCurrent.valid ? 
-                                < SectionForm key="-2" divRef={this.formRef ? (el) => this.divElement = el : null } 
-                                    section={{id: -1}} onDown={this.handleKeyDown} onSelect={this.handleSelect} 
-                                    sectionToAddTo={this.sectionCards().sectionToAddTo} name="ADD CONTENT"/> : ""
+                          return [< CompositionLabel urlId={this.props.match.params.id} totalNumberComp={this.props.composition.ids.length} key="-1"/>,
+                                 !this.props.loading ? this.sectionCards().sectionCards : <Loading key="-2" />, 
+                                 !this.props.loading && !this.props.sectionCurrent.valid ? 
+                                     < SectionForm key="-3" divRef={this.formRef ? (el) => this.divElement = el : null } 
+                                        section={{id: -1}} onDown={this.handleKeyDown} onSelect={this.handleSelect} 
+                                        sectionToAddTo={this.sectionCards().sectionToAddTo} name="ADD CONTENT"
+                                    /> 
+                                    : ""
                                 ]
                         }
                     }
