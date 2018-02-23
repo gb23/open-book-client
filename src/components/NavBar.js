@@ -16,12 +16,7 @@ const NavBar = () => {
             >
             About
             </NavLink>
-            <NavLink
-                style={{ marginRight: '10px' }}
-                to="/stitch"
-            >
-            Stitch
-            </NavLink>
+            
         </div>
     );
 }
