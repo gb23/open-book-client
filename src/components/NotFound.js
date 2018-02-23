@@ -5,7 +5,7 @@ const NotFound = () => {
         <div>
             
             <div className="center SectionCard bt bb b--black-10">
-                <h2 className="notFound biggerText yellow">4</h2>
+                <h2 className="notFound biggerText gold">4</h2>
                 
             </div>
             <div className="center SectionCard bt bb b--black-10">
