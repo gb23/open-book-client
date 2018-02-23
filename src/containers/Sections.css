@@ -3,11 +3,34 @@
     height: 200px;
     transition: all 0.3s cubic-bezier(.25,.8,.25,1);
 }
+.SectionCardText{
+    height: 168px;
+    overflow-y:auto;
+}
+
+.cardData{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; 
+}
+.reverseFlexDirection{
+  flex-direction: row-reverse;
+} 
+
+.fixTextArea{
+  height: 157px;
+  resize: none;
+}
+.formPaddingTop{
+  padding-top: 0.80rem;
+}
 
 .SectionCard:focus {
     box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
 }
-
+.fade:focus{
+  background-color:  rgba(91, 75, 75, 0.305);
+}
 .blink1 {
     animation: blink 1s steps(2, start) infinite;
     -webkit-animation: blink 1s steps(2, start) infinite;
@@ -62,7 +85,6 @@
 .biggerText {
   font-size: 6rem;
 }
-
 .warningRed {
   background-color: rgba(203, 2, 2, 0.833)
 }

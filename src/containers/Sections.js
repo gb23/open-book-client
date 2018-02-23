@@ -17,6 +17,8 @@ class Sections extends Component{
         this.sectionList = [];
         this.formRef = false;
         this.warning = false;
+        //this.skip = false;
+        // this.arrowRight = false;
     }
     componentDidMount() {
         //loading made true in getSections
@@ -33,8 +35,19 @@ class Sections extends Component{
             this.props.notLoading();
         
         })
+       
     }
     componentDidUpdate() {
+        // if(this.props.match.params.id !== "new" && this.props.match.params.id !== ":id"){
+        //     const sectionId = this.props.composition.ids.find(id => id === parseInt(this.props.match.params.id, 10))
+        //     const section = this.props.sections.list.find(section => section.id === sectionId);
+        //     this.props.setCurrentSection(section);
+        //     this.props.setComposition
+        // }
+        window.onpopstate = () => {
+            const urlID = this.props.match.params.id;
+            this.handleBrowserButtonNavigation(urlID)
+        }
         if(this.divElement){
             if (this.warning === true){
                 const classListOriginal = this.divElement.className;
@@ -43,10 +56,11 @@ class Sections extends Component{
                 setTimeout(() => {
                     this.divElement.className = classListOriginal;
                 }, 100);
+                this.warning = false;
             }
-           
+            
             this.divElement.focus();
-            this.warning = false;
+            
         }
         //debugger;
         this.formRef = false;
@@ -56,6 +70,42 @@ class Sections extends Component{
                 this.sectionList = [...this.sectionList, parseInt(section.key, 10)];
             });
         }        
+    }
+    handleBrowserButtonNavigation = (urlId) => {
+        if(urlId !== ":id" && urlId !== "new"){
+            const compositionLoc = parseInt(urlId, 10);
+            if (typeof(compositionLoc) === "number"){
+                //get the id located at compositionIndex
+                const sectionId = this.props.composition.ids[compositionLoc - 1];
+                //set the composition current id to this id
+                this.props.setComposition({...this.props.composition, currentId: sectionId})
+                //get the section with the id
+                const section = this.props.sections.list.find(section => section.id === sectionId);
+                //set the current section to the section
+                this.props.setCurrentSection(section);
+            }
+        }
+        else if (urlId === "new"){
+            const section = {valid: true, id: 0, prev_id: -1, sectionToReplace: {id: 0, prev_id: -1}};
+            this.props.setCurrentSection(section);
+        }
+        else if (urlId === ":id"){
+            let highestVote = -1;
+            let compIdWithHighestVote = -1;
+            const compositions = this.props.composition.ids.map(id => {
+                return this.props.sections.list.find(section => section.id === id)
+            })
+            compositions.forEach(comp => {
+                if(comp.votes > highestVote){
+                    highestVote = comp.votes
+                    compIdWithHighestVote = comp.id
+                }
+            });
+            // const newUrlId = this.props.composition.ids.indexOf(compIdWithHighestVote) + 1;
+            const section = this.props.sections.list.find(section => section.id === compIdWithHighestVote)
+            this.props.setCurrentSection(section);
+            this.props.setComposition({...this.props.composition, currentId: compIdWithHighestVote})
+        }
     }
     handleCompositions = (urlId = null, sections) => {
         const compositions = sections.filter(section => section.prev_id === -1);
@@ -148,6 +198,7 @@ class Sections extends Component{
                     nextId = this.sectionList[currentIndex + 1];
                 }  
                 else if(keyName === "ArrowUp"){
+                    //debugger;
                     this.warning = true;
                     this.props.setCurrentSection(this.props.sectionCurrent)
                 }
@@ -155,10 +206,16 @@ class Sections extends Component{
             //else you're on an x-form.  can arrow up only
             else if (currentIndex === lastIndex && this.props.sectionCurrent.id === 0 && this.sectionList.length >= 1){
                 //debugger;
-                if (keyName === "ArrowUp"){
-                    nextId = this.sectionList[lastIndex - 1]
-        //            this.props.replaceSectionWithForm({valid: false})
+                if (keyName === "ArrowUp" ){
+                    if (currentIndex !== 0){
+                        nextId = this.sectionList[lastIndex - 1]
+                    }
+                    else {
+                        this.warning = true;
+                        this.props.setCurrentSection(this.props.sectionCurrent)
+                    }   
                 }
+
                 else if (keyName === "ArrowDown"){
                     this.warning = true;
                     this.props.setCurrentSection(this.props.sectionCurrent)
@@ -173,6 +230,7 @@ class Sections extends Component{
             //else if you are on a y-form and you arrow up, go to last index of sectionList
             else if(this.props.sectionCurrent.id === -1 && this.sectionList.length >= 1){
                 if(keyName === "ArrowUp"){
+                   // debugger;
                     nextId = this.sectionList[lastIndex]
                 }
                 else if (keyName === "ArrowDown"){
@@ -183,7 +241,11 @@ class Sections extends Component{
             else if(keyName === "ArrowUp" && this.sectionList.length > 1){
                 nextId = this.sectionList[currentIndex - 1];
             }
-            else if(keyName === "ArrowDown" && this.sectionList.length > 1){
+            else if(keyName === "ArrowUp" && this.sectionList.length === 1){
+                this.warning = true;
+                this.props.setCurrentSection(this.props.sectionCurrent)
+            }
+            else if(keyName === "ArrowDown" && this.sectionList.length >= 1){
                 nextId = this.sectionList[currentIndex + 1];
             }
             if(nextId){
@@ -212,12 +274,14 @@ class Sections extends Component{
                         // if left arrow, go to the parent' last next_id
                     
                             nextSection = this.props.sections.list.find(section => section.id === parentSection.next_ids[parentSection.next_ids.length - 1]);
+                           
                 //        this.props.setCurrentSection(nextSection)
                         
                     } 
                     else if (keyName === "ArrowRight"){
                         // if right arrow, go to the parents first next_id
                             nextSection = this.props.sections.list.find(section => section.id === parentSection.next_ids[0]);
+                          
             //          this.props.setCurrentSection(nextSection)
                     }
                 
@@ -225,7 +289,7 @@ class Sections extends Component{
                     //debugger;
                     this.props.setCurrentSection({...nextSection, valid: false})
                 //   this.props.replaceSectionWithForm({valid: false})
-                    
+                    // this.arrowRight = true;
                     console.log("sectionCurrent is false")
                     //debugger;
                }
@@ -272,7 +336,11 @@ class Sections extends Component{
                     
                         
                         const nextSection = this.props.sections.list.find(section => section.id === nextId);//this.getNextId(parentSection, sectionIdIndexInNextID, boundary.direction));//nextId);
-                    
+                       // debugger;
+                    //    this.arrowRight = true;
+                    //     this.props.setCurrentSection(this.props.sectionCurrent);
+
+                        
                         
                         // if(nextSection){
                             this.props.setCurrentSection(nextSection);
@@ -314,7 +382,7 @@ class Sections extends Component{
                             this.props.setCurrentSection({...composition, prev_id: -1, valid: false})
                             this.props.setComposition({...this.props.composition, currentId: this.props.composition.ids[currentCompIndex + 1]});
                             //debugger;
-                            this.props.push(`/compositions/${this.props.composition.ids.indexOf(composition.id) + 1}`)  
+                            this.props.push(`/compositions/${this.props.composition.ids.indexOf(composition.id) + 1}`, this.props.sectionCurrent);  
                         }
                         //you are at the right end of the composition array.  Arrowing right will produce a new composition form
                         else {
@@ -332,14 +400,14 @@ class Sections extends Component{
                     }
                     else {
                         console.log("you are at the top and move left");
-                        // you are at the top and are arrowing right
+                        // you are at the top and are arrowing left
                         if (currentCompIndex !== 0){
                             
                             const composition = this.props.sections.list.find(comp => comp.id === this.props.composition.ids[currentCompIndex - 1])
                             this.props.setCurrentSection({...composition, prev_id: -1, valid: false})
                             this.props.setComposition({...this.props.composition, currentId: this.props.composition.ids[currentCompIndex - 1]});
                             //debugger;
-                            this.props.push(`/compositions/${this.props.composition.ids.indexOf(composition.id) + 1}`)  
+                            this.props.push(`/compositions/${this.props.composition.ids.indexOf(composition.id) + 1}`, this.props.sectionCurrent);  
                         } 
                         //you are at the left end of the composition array.  Arrowing left will produce a new composition form
                         else {
@@ -387,28 +455,34 @@ class Sections extends Component{
         return found;
     }
     sectionCards = () => {
-        
-        const currentComp = this.props.sections.list.find(section => section.id === this.props.composition.currentId);
+        let currentComp = null
         let composition = [];
         let nextId = null;
         let pointer = null;
- 
-        if (this.props.sectionCurrent.id === 0 && this.props.sectionCurrent.sectionToReplace.id === 0){
-            //this is if user directly types in url .../compositions/new
-            composition = [this.props.sectionCurrent];
-            nextId = this.props.sectionCurrent.id
-        } else {
-            
 
-            const currentCompIndex = this.props.sections.list.indexOf(currentComp);
-
-            composition = this.props.sections.list.slice(currentCompIndex);
-            nextId = composition[0].id;
-            pointer = composition[0].id;
-            
-        }
-        
-        
+        // if (urlId !== "new" && urlId !== ":id"){
+            //const compositionIndexInArray = parseInt(urlId, 10); //urlId === 5.  this.composition.ids = [1,5,17,19,*24]
+            //const compositionSectionId = this.props.composition.ids[compositionIndexInArray] //24
+            //const currentCompIndex = this.props.sections.list.indexOf(compositionSectionId);
+        // }
+        // else{
+            //debugger;
+            currentComp = this.props.sections.list.find(section => section.id === this.props.composition.currentId);
+            if (this.props.sectionCurrent.id === 0 && this.props.sectionCurrent.sectionToReplace.id === 0){
+                //this is if user directly types in url .../compositions/new
+                composition = [this.props.sectionCurrent];
+                nextId = this.props.sectionCurrent.id
+            } else {
+                
+    
+                const currentCompIndex = this.props.sections.list.indexOf(currentComp);
+    
+                composition = this.props.sections.list.slice(currentCompIndex);
+                nextId = composition[0].id;
+                pointer = composition[0].id;
+                
+            }
+        // }
         
         let idHighestVotes = -1
        // debugger;
@@ -561,7 +635,7 @@ class Sections extends Component{
     }
     render() {
         //something can go here...
-       //debugger;
+      // debugger;
         return( 
             <div>
             {/* <Switch> */}
