@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
+import './Sections.css'
 import { Route } from 'react-router-dom';
 // Switch
 import { connect } from 'react-redux';
-import './Sections.css'
+
 import SectionCard from '../components/SectionCard'
+import Loading from '../components/Loading'
 import { getSections, upVoteSection, setCurrentSection, notLoading, } from '../actions/sections';
 import { setComposition } from '../actions/composition';
 import SectionForm from './SectionForm'
@@ -11,12 +13,12 @@ import { push } from 'react-router-redux'
 
 class Sections extends Component{
     constructor(props){
-        super(props)
-        this.sectionList = []
-        this.formRef = false
+        super(props);
+        this.sectionList = [];
+        this.formRef = false;
+        this.warning = false;
     }
     componentDidMount() {
-        //debugger;
         //loading made true in getSections
         this.props.getSections().then(() => {
             let urlId = null
@@ -34,8 +36,19 @@ class Sections extends Component{
     }
     componentDidUpdate() {
         if(this.divElement){
+            if (this.warning === true){
+                const classListOriginal = this.divElement.className;
+                const classListNew = classListOriginal + " warningRed"
+                this.divElement.className = classListNew;
+                setTimeout(() => {
+                    this.divElement.className = classListOriginal;
+                }, 100);
+            }
+           
             this.divElement.focus();
+            this.warning = false;
         }
+        //debugger;
         this.formRef = false;
         this.sectionList = [];
         if(!this.props.loading){
@@ -134,13 +147,21 @@ class Sections extends Component{
                 if(keyName === "ArrowDown"){
                     nextId = this.sectionList[currentIndex + 1];
                 }  
+                else if(keyName === "ArrowUp"){
+                    this.warning = true;
+                    this.props.setCurrentSection(this.props.sectionCurrent)
+                }
             }
             //else you're on an x-form.  can arrow up only
-            else if (currentIndex === lastIndex && this.props.sectionCurrent.id === 0 && this.sectionList.length > 1){
+            else if (currentIndex === lastIndex && this.props.sectionCurrent.id === 0 && this.sectionList.length >= 1){
                 //debugger;
                 if (keyName === "ArrowUp"){
                     nextId = this.sectionList[lastIndex - 1]
         //            this.props.replaceSectionWithForm({valid: false})
+                }
+                else if (keyName === "ArrowDown"){
+                    this.warning = true;
+                    this.props.setCurrentSection(this.props.sectionCurrent)
                 }
              
             }
@@ -153,6 +174,10 @@ class Sections extends Component{
             else if(this.props.sectionCurrent.id === -1 && this.sectionList.length >= 1){
                 if(keyName === "ArrowUp"){
                     nextId = this.sectionList[lastIndex]
+                }
+                else if (keyName === "ArrowDown"){
+                    this.warning = true;
+                    this.props.setCurrentSection(this.props.sectionCurrent)
                 }
             }
             else if(keyName === "ArrowUp" && this.sectionList.length > 1){
@@ -275,6 +300,9 @@ class Sections extends Component{
                     
                     if (section.id === -1){
                         console.log("you are at the bottom and cannot therefore move right");
+                        this.warning = true;
+                        this.props.setCurrentSection(this.props.sectionCurrent)
+      
                     }
                     else {
                         console.log("you are at the top and move right");
@@ -299,6 +327,8 @@ class Sections extends Component{
                 } else if (keyName === "ArrowLeft"){                        
                     if (section.id === -1){
                         console.log("you are at the bottom and cannot therefore move left");
+                        this.warning = true;
+                        this.props.setCurrentSection(this.props.sectionCurrent)
                     }
                     else {
                         console.log("you are at the top and move left");
@@ -465,9 +495,9 @@ class Sections extends Component{
                         //props.sectionReplace.sectionToReplace.id
                         //props.sectionReplace.valid
                         //this.props.replaceSectionWithForm({valid: false});
-                        let label = "Add a NEW VERSION"
+                        let label = "ADD VERSION"
                         if (section.prev_id === -1){
-                            label = "Create a NEW COMPOSITION"
+                            label = "ADD COMPOSITION"
                         } 
                         nextId = -1;
                         return < SectionForm divRef={el => this.divElement = el} key="0" section={{id: 0}} onDown={this.handleKeyDown} onSelect={this.handleSelect} sectionToAddTo={props.sectionCurrent.sectionToReplace.prev_id} name={label} />
@@ -535,59 +565,24 @@ class Sections extends Component{
         return( 
             <div>
             {/* <Switch> */}
-                 <Route exact path={`${this.props.match.url}`}
+                 {/* <Route exact path={`${this.props.match.url}`}
                     render={()=>{
                  //   debugger;
                     return <div>{`Composition ${this.props.match.params.id}`}</div>}}
-                />
+                /> */}
                  <Route exact path={`${this.props.match.url}`}
                     render={()=> 
                         {
-                         // debugger;
-                          return !this.props.loading ? this.sectionCards().sectionCards : "loading!!" 
+                          return [<div key="-3">{`Composition ${this.props.match.params.id}`}</div>,!this.props.loading ? this.sectionCards().sectionCards : <Loading key="-1" />, 
+                                !this.props.loading && !this.props.sectionCurrent.valid ? 
+                                < SectionForm key="-2" divRef={this.formRef ? (el) => this.divElement = el : null } 
+                                    section={{id: -1}} onDown={this.handleKeyDown} onSelect={this.handleSelect} 
+                                    sectionToAddTo={this.sectionCards().sectionToAddTo} name="ADD CONTENT"/> : ""
+                                ]
                         }
                     }
                 /> 
-                <Route exact path={`${this.props.match.url}`}
-                    render={()=> 
-                        {
-                         // debugger;
-                          return !this.props.loading && !this.props.sectionCurrent.valid ? 
-                            < SectionForm divRef={this.formRef ? (el) => this.divElement = el : null } 
-                                section={{id: -1}} onDown={this.handleKeyDown} onSelect={this.handleSelect} 
-                                sectionToAddTo={this.sectionCards().sectionToAddTo} name="Add NEW CONTENT"/> : ""
-                        }
-                    }
-                />
-                {/* <Route exact path={`${this.props.match.url}/:id`}
-                    render={()=> 
-                        {
-                         // debugger;
-                          return !this.props.loading ? this.sectionCards().sectionCards : "loading!!" 
-                        }
-                    }
-                /> 
-                <Route exact path={`${this.props.match.url}/:id`}
-                    render={()=> 
-                        {
-                         // debugger;
-                          return !this.props.loading && !this.props.sectionCurrent.valid ? 
-                            < SectionForm divRef={this.formRef ? (el) => this.divElement = el : null } 
-                                section={{id: -1}} onDown={this.handleKeyDown} onSelect={this.handleSelect} 
-                                sectionToAddTo={this.sectionCards().sectionToAddTo} name="Add NEW CONTENT"/> : ""
-                        }
-                    }
-                /> */}
-                
-                       
-                    {/* //   debugger; */}
-                    {/* //   return !this.props.loading ? this.sectionCards().sectionCards : "loading!!" }}  */}
-                {/* {!this.props.loading ? this.sectionCards().sectionCards : "loading!!" }  */}
-
-                {/* {!this.props.loading && !this.props.sectionCurrent.valid ? 
-                < SectionForm divRef={this.formRef ? (el) => this.divElement = el : null } 
-                    section={{id: -1}} onDown={this.handleKeyDown} onSelect={this.handleSelect} 
-                    sectionToAddTo={this.sectionCards().sectionToAddTo} name="Add NEW CONTENT"/> : "" } */}
+              
             {/* </Switch> */}
             </div>
         );
