@@ -8,11 +8,11 @@ const NavBar = () => {
                 style={{ marginLeft: '15px', marginTop: '5px' }}
                 to="/compositions"
             >
-                <i className="mt1 fa fa-pencil-square blue" title="Compositions"></i>
+                <i className="mt1 fa fa-pencil-square blue" title="Popular Composition"></i>
             </NavLink>
             <NavLink
                 style={{ marginRight: '15px', marginTop: '5px'  }}
-                to="/about"
+                to="/"
             >
                 <i className="mt1 fa fa-question-circle blue" title="About"></i>
             </NavLink>

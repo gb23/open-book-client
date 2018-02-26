@@ -31,7 +31,14 @@ class SectionForm extends Component {
             this.props.setCurrentSection({...nextSection, valid: false});
             if(nextSection.prev_id === -1){
                 this.props.setComposition({ids: [...this.props.composition.ids, nextSection.id] , currentId: nextSection.id});
-                this.props.push(`/compositions/${this.props.composition.ids.length + 1}`)
+                if(this.props.match && this.props.match.params.id === "about"){
+                    this.props.push(`/compositions/about`);  
+                }
+                else{
+                    this.props.push(`/compositions/${this.props.composition.ids.length + 1}`)
+                }
+
+                
             }
         }
         else {

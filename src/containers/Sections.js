@@ -23,6 +23,7 @@ class Sections extends Component{
     }
     componentDidMount() {
         //loading made true in getSections
+        //debugger;
         this.props.getSections().then(() => {
             let urlId = null
             if(this.props.match.params.id){
@@ -39,12 +40,6 @@ class Sections extends Component{
        
     }
     componentDidUpdate() {
-        // if(this.props.match.params.id !== "new" && this.props.match.params.id !== ":id"){
-        //     const sectionId = this.props.composition.ids.find(id => id === parseInt(this.props.match.params.id, 10))
-        //     const section = this.props.sections.list.find(section => section.id === sectionId);
-        //     this.props.setCurrentSection(section);
-        //     this.props.setComposition
-        // }
         window.onpopstate = () => {
             const urlID = this.props.match.params.id;
             this.handleBrowserButtonNavigation(urlID)
@@ -110,17 +105,30 @@ class Sections extends Component{
     }
     handleCompositions = (urlId = null, sections) => {
         const compositions = sections.filter(section => section.prev_id === -1);
+        const aboutCompositions = sections.filter(section => section.prev_id === -2);
         let ids = [];
+        let aboutIds = [];
         let highestVote = -1;
-        let compIdWithHigestVote = -1;
-        let valid = false;
+       //let aboutHighestVote = -1;
+        let compIdWithHighestVote = -1;
+        //let aboutCompIdWithHighestVote = -1;
+
+        let valid = false;  //checks if urlId is valid
+
         compositions.forEach( comp => {
             ids = [...ids, comp.id]
             if(comp.votes > highestVote){
                 highestVote = comp.votes
-                compIdWithHigestVote = comp.id
+                compIdWithHighestVote = comp.id
             }
         }) 
+        aboutCompositions.forEach( comp => {
+            aboutIds = [...aboutIds, comp.id]
+            // if(comp.votes > aboutHighestVote){
+            //     aboutHighestVote = comp.votes
+            //     aboutCompIdWithHighestVote = comp.id
+            // }
+        })
         //debugger;  
         if (urlId === "new"){
             this.props.setComposition({ids: ids, currentId: ids[ids.length - 1]});
@@ -128,20 +136,22 @@ class Sections extends Component{
             valid = false;
         }
         else {
-            urlId = parseInt(urlId,10)
-            if(urlId > 0 && urlId <= ids.length){
-                const sectionId = ids[urlId - 1]
+            const urlNumber = parseInt(urlId,10)
+            if(urlNumber > 0 && urlNumber <= ids.length){
+                const sectionId = ids[urlNumber - 1]
                 this.props.setComposition({ids: ids, currentId: sectionId});
             }
-            else {
+            else if (urlId === "about"){
                 //debugger;
-                //url is just "/compositions".  need to append it with the comp index of highest vote. ex: "/compositions/2"
-               
-                this.props.setComposition({ids: ids, currentId: compIdWithHigestVote})
-                this.props.push(`/compositions/${ids.indexOf(compIdWithHigestVote)+1}`)
+                this.props.setComposition({ids: aboutIds, currentId: aboutIds[0]});
                     
                 
-                
+            }
+            else {  
+                //url is just "/compositions or is /compositions/:id".  need to append it with the comp index of highest vote. ex: "/compositions/2"
+                //debugger;
+                this.props.setComposition({ids: ids, currentId: compIdWithHighestVote})
+                this.props.push(`/compositions/${ids.indexOf(compIdWithHighestVote)+1}`)  
                 
             }
             valid = true;
@@ -312,12 +322,15 @@ class Sections extends Component{
                     this.props.setComposition({...this.props.composition, currentId: nextSection.id});
                     //debugger;
                     console.log("sectionCurrent is false")
-                    this.props.push(`/compositions/${this.props.composition.ids.indexOf(compId) + 1}`) 
-                    
+//debugger;
+
+                    if(this.props.match.params.id === "about"){
+                        this.props.push(`/compositions/about`);  
+                    }
+                    else{
+                        this.props.push(`/compositions/${this.props.composition.ids.indexOf(compId) + 1}`) 
+                    }
                 }
-                
-
-
             } else if(section.prev_id >= 0){
             
                 console.log("not the top!");
@@ -383,14 +396,29 @@ class Sections extends Component{
                             this.props.setCurrentSection({...composition, prev_id: -1, valid: false})
                             this.props.setComposition({...this.props.composition, currentId: this.props.composition.ids[currentCompIndex + 1]});
                             //debugger;
-                            this.props.push(`/compositions/${this.props.composition.ids.indexOf(composition.id) + 1}`, this.props.sectionCurrent);  
+                            if(this.props.match.params.id === "about"){
+                                this.props.push(`/compositions/about`);  
+                            }
+                            else{
+                                this.props.push(`/compositions/${this.props.composition.ids.indexOf(composition.id) + 1}`);  
+                            }
+                            
                         }
                         //you are at the right end of the composition array.  Arrowing right will produce a new composition form
                         else {
                             //debugger;
                             const composition = this.props.sections.list.find(comp => comp.id === this.props.composition.ids[currentCompIndex])
                             this.props.setCurrentSection({valid: true, sectionToReplace: composition, id: 0, prev_id: -1})
-                            this.props.push("/compositions/new")  
+
+                            if(this.props.match.params.id === "about"){
+                                this.props.push(`/compositions/about`);  
+                            }
+                            else{
+                                this.props.push("/compositions/new")  
+                            }
+
+
+                            
                         }
                     }
                 } else if (keyName === "ArrowLeft"){                        
@@ -408,14 +436,24 @@ class Sections extends Component{
                             this.props.setCurrentSection({...composition, prev_id: -1, valid: false})
                             this.props.setComposition({...this.props.composition, currentId: this.props.composition.ids[currentCompIndex - 1]});
                             //debugger;
-                            this.props.push(`/compositions/${this.props.composition.ids.indexOf(composition.id) + 1}`, this.props.sectionCurrent);  
+                            if(this.props.match.params.id === "about"){
+                                this.props.push(`/compositions/about`);  
+                            }
+                            else{
+                                this.props.push(`/compositions/${this.props.composition.ids.indexOf(composition.id) + 1}`);  
+                            }        
                         } 
                         //you are at the left end of the composition array.  Arrowing left will produce a new composition form
                         else {
                             const composition = this.props.sections.list.find(comp => comp.id === this.props.composition.ids[currentCompIndex])
                             this.props.setCurrentSection({valid: true, sectionToReplace: composition, id: 0, prev_id: -1})
                             //debugger;
-                            this.props.push("/compositions/new")  
+                            if(this.props.match.params.id === "about"){
+                                this.props.push(`/compositions/about`);  
+                            }
+                            else{
+                                this.props.push("/compositions/new")  
+                            }
                         }
                     }
                 }
@@ -571,7 +609,7 @@ class Sections extends Component{
                         //props.sectionReplace.valid
                         //this.props.replaceSectionWithForm({valid: false});
                         let label = "ADD VERSION"
-                        if (section.prev_id === -1){
+                        if (section.prev_id === -1 || section.prev_id === -2){ //-2 if for the 'about' section compositions
                             label = "ADD COMPOSITION"
                         } 
                         nextId = -1;
@@ -636,7 +674,7 @@ class Sections extends Component{
     }
     render() {
         //something can go here...
-      
+       // debugger;
         return( 
             <div>
             {/* <Switch> */}
@@ -645,10 +683,11 @@ class Sections extends Component{
                  //   debugger;
                     return <div>{`Composition ${this.props.match.params.id}`}</div>}}
                 /> */}
-                 <Route exact path={`${this.props.match.url}`}
+                 <Route path={`${this.props.match.url}`}
                     render={()=> 
                         {
-                          return [< CompositionLabel urlId={this.props.match.params.id} totalNumberComp={this.props.composition.ids.length} key="-1"/>,
+                            //debugger;
+                          return [< CompositionLabel urlId={this.props.match.params.id} comp={this.props.composition} key="-1"/>,
                                  !this.props.loading ? this.sectionCards().sectionCards : <Loading key="-2" />, 
                                  !this.props.loading && !this.props.sectionCurrent.valid ? 
                                      < SectionForm key="-3" divRef={this.formRef ? (el) => this.divElement = el : null } 
