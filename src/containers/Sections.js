@@ -39,16 +39,12 @@ class Sections extends Component{
        
     }
     componentDidUpdate() {
-        // if(this.props.match.params.id !== "new" && this.props.match.params.id !== ":id"){
-        //     const sectionId = this.props.composition.ids.find(id => id === parseInt(this.props.match.params.id, 10))
-        //     const section = this.props.sections.list.find(section => section.id === sectionId);
-        //     this.props.setCurrentSection(section);
-        //     this.props.setComposition
-        // }
-        window.onpopstate = () => {
-            const urlID = this.props.match.params.id;
-            this.handleBrowserButtonNavigation(urlID)
-        }
+        //back/forward...
+// window.onpopstate = () => {
+//     const urlID = this.props.match.params.id;
+//     this.handleBrowserButtonNavigation(urlID)
+// }
+        //debugger;
         if(this.divElement){
             if (this.warning === true){
                 const classListOriginal = this.divElement.className;
@@ -69,6 +65,7 @@ class Sections extends Component{
         if(!this.props.loading){
             this.sectionCards().sectionCards.forEach(section => {
                 this.sectionList = [...this.sectionList, parseInt(section.key, 10)];
+                //debugger;
             });
         }        
     }
@@ -104,6 +101,7 @@ class Sections extends Component{
             });
             // const newUrlId = this.props.composition.ids.indexOf(compIdWithHighestVote) + 1;
             const section = this.props.sections.list.find(section => section.id === compIdWithHighestVote)
+            
             this.props.setCurrentSection(section);
             this.props.setComposition({...this.props.composition, currentId: compIdWithHighestVote})
         }
@@ -149,8 +147,11 @@ class Sections extends Component{
         return valid;
     }
     handleUpVote = (sectionId) => {
+        //debugger;
         const sectionAddVote = this.props.sections.list.filter(section => section.id === sectionId);
         this.props.upVoteSection(...sectionAddVote);
+        //debugger;
+        //this.props.setCurrentSection(sectionAddVote);
     }
     handleKeyDown = (event, section) => {
         
