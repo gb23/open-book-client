@@ -23,13 +23,14 @@ class SectionForm extends Component {
     handleOnSubmit = (event) => {
         event.preventDefault();  
         if (this.props.sectionFormData.text.trim().length !== 0){
+            //debugger;
             const sectionFormData = {...this.props.sectionFormData, prev_id: parseInt(this.props.sectionToAddTo, 10) }
             this.props.createSection(sectionFormData)
  
             const nextId = parseInt(this.getGreatestSectionsId() + 1, 10);
             const nextSection = {id: nextId, ...sectionFormData}
             this.props.setCurrentSection({...nextSection, valid: false});
-            if(nextSection.prev_id === -1){
+            if(nextSection.prev_id === -1 || nextSection.prev_id === -2 ){
                 this.props.setComposition({ids: [...this.props.composition.ids, nextSection.id] , currentId: nextSection.id});
                 if(this.props.match && this.props.match.params.id === "about"){
                     this.props.push(`/compositions/about`);  

@@ -68,7 +68,7 @@ class Sections extends Component{
         }        
     }
     handleBrowserButtonNavigation = (urlId) => {
-        if(urlId !== ":id" && urlId !== "new"){
+        if(urlId !== ":id" && urlId !== "new" && urlId !== "about"){
             const compositionLoc = parseInt(urlId, 10);
             if (typeof(compositionLoc) === "number"){
                 //get the id located at compositionIndex
@@ -101,6 +101,11 @@ class Sections extends Component{
             const section = this.props.sections.list.find(section => section.id === compIdWithHighestVote)
             this.props.setCurrentSection(section);
             this.props.setComposition({...this.props.composition, currentId: compIdWithHighestVote})
+        }
+        else if (urlId === "about"){
+            const section = this.props.sections.list.find(section => section.id === this.props.composition.ids[0])
+            this.props.setCurrentSection(section);
+            this.props.setComposition({...this.props.composition, currentId: this.props.composition.ids[0]})
         }
     }
     handleCompositions = (urlId = null, sections) => {
@@ -275,7 +280,7 @@ class Sections extends Component{
             
             if(section.id === 0){
                // debugger;
-               if(this.props.sectionCurrent.prev_id !== -1){
+               if(this.props.sectionCurrent.prev_id !== -1 && this.props.sectionCurrent.prev_id !== -2){
                         //debugger;
                     //this means we are arrowing while on a compose card
                     let nextSection = null;
@@ -325,7 +330,7 @@ class Sections extends Component{
 //debugger;
 
                     if(this.props.match.params.id === "about"){
-                        this.props.push(`/compositions/about`);  
+                     //   this.props.push(`/compositions/about`);  
                     }
                     else{
                         this.props.push(`/compositions/${this.props.composition.ids.indexOf(compId) + 1}`) 
@@ -393,13 +398,16 @@ class Sections extends Component{
                         if (currentCompIndex !== compArraySize - 1){
                             
                             const composition = this.props.sections.list.find(comp => comp.id === this.props.composition.ids[currentCompIndex + 1])
-                            this.props.setCurrentSection({...composition, prev_id: -1, valid: false})
-                            this.props.setComposition({...this.props.composition, currentId: this.props.composition.ids[currentCompIndex + 1]});
+                            
                             //debugger;
                             if(this.props.match.params.id === "about"){
-                                this.props.push(`/compositions/about`);  
+                                this.props.setCurrentSection({...composition, prev_id: -2, valid: false})
+                                this.props.setComposition({...this.props.composition, currentId: this.props.composition.ids[currentCompIndex + 1]});
+                              //  this.props.push(`/compositions/about`);  
                             }
                             else{
+                                this.props.setCurrentSection({...composition, prev_id: -1, valid: false})
+                                this.props.setComposition({...this.props.composition, currentId: this.props.composition.ids[currentCompIndex + 1]});
                                 this.props.push(`/compositions/${this.props.composition.ids.indexOf(composition.id) + 1}`);  
                             }
                             
@@ -408,12 +416,13 @@ class Sections extends Component{
                         else {
                             //debugger;
                             const composition = this.props.sections.list.find(comp => comp.id === this.props.composition.ids[currentCompIndex])
-                            this.props.setCurrentSection({valid: true, sectionToReplace: composition, id: 0, prev_id: -1})
 
                             if(this.props.match.params.id === "about"){
-                                this.props.push(`/compositions/about`);  
+                                this.props.setCurrentSection({valid: true, sectionToReplace: composition, id: 0, prev_id: -2})
+                           //     this.props.push(`/compositions/about`);  
                             }
                             else{
+                                this.props.setCurrentSection({valid: true, sectionToReplace: composition, id: 0, prev_id: -1})
                                 this.props.push("/compositions/new")  
                             }
 
@@ -433,25 +442,29 @@ class Sections extends Component{
                         if (currentCompIndex !== 0){
                             
                             const composition = this.props.sections.list.find(comp => comp.id === this.props.composition.ids[currentCompIndex - 1])
-                            this.props.setCurrentSection({...composition, prev_id: -1, valid: false})
-                            this.props.setComposition({...this.props.composition, currentId: this.props.composition.ids[currentCompIndex - 1]});
+                            
                             //debugger;
                             if(this.props.match.params.id === "about"){
-                                this.props.push(`/compositions/about`);  
+                                this.props.setCurrentSection({...composition, prev_id: -2, valid: false})
+                                this.props.setComposition({...this.props.composition, currentId: this.props.composition.ids[currentCompIndex - 1]});
+                                //this.props.push(`/compositions/about`);  
                             }
                             else{
+                                this.props.setCurrentSection({...composition, prev_id: -1, valid: false})
+                                this.props.setComposition({...this.props.composition, currentId: this.props.composition.ids[currentCompIndex - 1]});
                                 this.props.push(`/compositions/${this.props.composition.ids.indexOf(composition.id) + 1}`);  
                             }        
                         } 
                         //you are at the left end of the composition array.  Arrowing left will produce a new composition form
                         else {
                             const composition = this.props.sections.list.find(comp => comp.id === this.props.composition.ids[currentCompIndex])
-                            this.props.setCurrentSection({valid: true, sectionToReplace: composition, id: 0, prev_id: -1})
                             //debugger;
                             if(this.props.match.params.id === "about"){
-                                this.props.push(`/compositions/about`);  
+                                this.props.setCurrentSection({valid: true, sectionToReplace: composition, id: 0, prev_id: -2})
+                                //this.props.push(`/compositions/about`);  
                             }
                             else{
+                                this.props.setCurrentSection({valid: true, sectionToReplace: composition, id: 0, prev_id: -1})
                                 this.props.push("/compositions/new")  
                             }
                         }
@@ -478,7 +491,7 @@ class Sections extends Component{
         const locateSection = (checkId) => {
             return this.props.sections.list.find(section => section.id === checkId)
         }
-        while (!done && sectId !== -1){
+        while (!done && sectId !== -1 && sectId !== -2){
             const checkSection = locateSection(checkId);
             if (checkSection){
                 if (checkSection.prev_id === sectId){
@@ -546,7 +559,7 @@ class Sections extends Component{
             //    // sectionToUpdate.next_ids = [...sectionToUpdate.next_ids, this.props.sectionCurrent.id]
             //    // debugger;
             // }
-            else if(this.props.sectionCurrent.valid === true && this.props.sectionCurrent.prev_id !== -1){
+            else if(this.props.sectionCurrent.valid === true && this.props.sectionCurrent.prev_id !== -1 && this.props.sectionCurrent.prev_id !== -2){
               //  if(this.props.sectionCurrent.prev_id === -1){
                     //this occurs when on a composition/new form
                   //  this.formRef = false;
@@ -591,7 +604,7 @@ class Sections extends Component{
                         
                        
 
-                    if (section.prev_id !== -1){
+                    if (section.prev_id !== -1 && section.prev_id !== -2){
                         //debugger;
                         prevSection = composition.find(sec => sec.id === section.prev_id)
                         if(prevSection){
@@ -687,7 +700,7 @@ class Sections extends Component{
                     render={()=> 
                         {
                             //debugger;
-                          return [< CompositionLabel urlId={this.props.match.params.id} comp={this.props.composition} key="-1"/>,
+                          return [< CompositionLabel urlId={this.props.match.params.id} comp={this.props.composition} sectionId={this.props.sectionCurrent.id} key="-1"/>,
                                  !this.props.loading ? this.sectionCards().sectionCards : <Loading key="-2" />, 
                                  !this.props.loading && !this.props.sectionCurrent.valid ? 
                                      < SectionForm key="-3" divRef={this.formRef ? (el) => this.divElement = el : null } 
