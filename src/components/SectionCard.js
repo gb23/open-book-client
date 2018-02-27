@@ -17,7 +17,7 @@ const SectionCard = (props) => {
             </div>
             <div className="cardData mt2">
                 <a onClick={ () => props.onVote(props.section.id)} className="ml2 link dim blue" href="#0"><i className="fa fa-thumbs-up blue"  />
-                    {props.section.prev_id === -1 ? `${props.section.votes} (total composition rating)`: props.section.votes}
+                    {(props.section.prev_id === -1 || props.section.prev_id === -2) ? `${props.section.votes} (total composition rating)`: props.section.votes}
                 </a>
                 
                 <span className="mr2 blue">{props.location ? `${props.location}/${props.total}` : ""}</span>
