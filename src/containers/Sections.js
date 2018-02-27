@@ -40,10 +40,10 @@ class Sections extends Component{
        
     }
     componentDidUpdate() {
-        window.onpopstate = () => {
-            const urlID = this.props.match.params.id;
-            this.handleBrowserButtonNavigation(urlID)
-        }
+        // window.onpopstate = () => {
+        //     const urlID = this.props.match.params.id;
+        //     this.handleBrowserButtonNavigation(urlID)
+        // }
         if(this.divElement){
             if (this.warning === true){
                 const classListOriginal = this.divElement.className;
@@ -54,8 +54,16 @@ class Sections extends Component{
                 }, 100);
                 this.warning = false;
             }
+            if(this.divElement.firstChild.elements){
+                //for a card with a form, focus the form
+                this.divElement.firstChild.elements[0].focus()
+
+            } 
+            else {
+                //focus a card that doesn't have a form
+                this.divElement.focus();
+            }
             
-            this.divElement.focus();
             
         }
         //debugger;
@@ -169,10 +177,13 @@ class Sections extends Component{
     }
     handleKeyDown = (event, section) => {
         
-        console.log("section had a keyDown:", section.id)
-        console.log(event.key);
+        if (section){
+            console.log("section had a keyDown:", section.id)
+            console.log(event.key);
+        }
+        
         //debugger;
-        if (event.key === "ArrowRight" || event.key === "ArrowLeft" || event.key === "ArrowDown" || event.key === "ArrowUp"){
+        if (section && (event.key === "ArrowRight" || event.key === "ArrowLeft" || event.key === "ArrowDown" || event.key === "ArrowUp")){
             event.preventDefault();
             //debugger;
            // this.props.setPath(path); 
@@ -201,9 +212,6 @@ class Sections extends Component{
     }
     handleArrow = (keyName, section) => {
         if (keyName === "ArrowDown" || keyName === "ArrowUp"){
-               
-         //  
-            //debugger;
             //find sectionCurrent index in sectionList
             const lastIndex = this.sectionList.length - 1;
             const currentIndex = this.sectionList.indexOf(this.props.sectionCurrent.id)
@@ -327,7 +335,7 @@ class Sections extends Component{
                     this.props.setComposition({...this.props.composition, currentId: nextSection.id});
                     //debugger;
                     console.log("sectionCurrent is false")
-//debugger;
+
 
                     if(this.props.match.params.id === "about"){
                      //   this.props.push(`/compositions/about`);  
@@ -475,6 +483,7 @@ class Sections extends Component{
     }
     handleSelect = (event, section) => {
         console.log(section.id, " has been clicked")
+        //event.stopPropagation();
 
         if (section.id === 0){
             this.props.setCurrentSection(this.props.sectionCurrent);
@@ -626,7 +635,7 @@ class Sections extends Component{
                             label = "ADD COMPOSITION"
                         } 
                         nextId = -1;
-                        return < SectionForm divRef={el => this.divElement = el} key="0" section={{id: 0}} onDown={this.handleKeyDown} onSelect={this.handleSelect} sectionToAddTo={props.sectionCurrent.sectionToReplace.prev_id} name={label} />
+                        return < SectionForm divRef={el => this.divElement = el} key="0" section={{id: 0}} url={this.props.match} onDown={this.handleKeyDown} onSelect={this.handleSelect} sectionToAddTo={props.sectionCurrent.sectionToReplace.prev_id} name={label} />
                         // sectionToAddTo={props.sectionReplace.sectionToReplace.prev_id} 
                     } else {
                         if(props.sectionCurrent.valid && section.id === pointer){
@@ -700,7 +709,7 @@ class Sections extends Component{
                     render={()=> 
                         {
                             //debugger;
-                          return [< CompositionLabel urlId={this.props.match.params.id} comp={this.props.composition} sectionId={this.props.sectionCurrent.id} key="-1"/>,
+                          return [< CompositionLabel urlId={this.props.match.params.id} comp={this.props.composition} section={this.props.sectionCurrent} key="-1"/>,
                                  !this.props.loading ? this.sectionCards().sectionCards : <Loading key="-2" />, 
                                  !this.props.loading && !this.props.sectionCurrent.valid ? 
                                      < SectionForm key="-3" divRef={this.formRef ? (el) => this.divElement = el : null } 
