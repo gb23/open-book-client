@@ -40,19 +40,10 @@ class Sections extends Component{
        
     }
     componentDidUpdate() {
-<<<<<<< HEAD
-        //back/forward...
-// window.onpopstate = () => {
-//     const urlID = this.props.match.params.id;
-//     this.handleBrowserButtonNavigation(urlID)
-// }
-        //debugger;
-=======
         // window.onpopstate = () => {
         //     const urlID = this.props.match.params.id;
         //     this.handleBrowserButtonNavigation(urlID)
         // }
->>>>>>> interactive-about
         if(this.divElement){
             if (this.warning === true){
                 const classListOriginal = this.divElement.className;
