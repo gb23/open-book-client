@@ -21,6 +21,7 @@ class SectionForm extends Component {
     }
     
     handleOnSubmit = (event) => {
+        //debugger;
         event.preventDefault();  
         if (this.props.sectionFormData.text.trim().length !== 0){
             //debugger;
@@ -59,7 +60,7 @@ class SectionForm extends Component {
             }, 100);
 
             this.props.resetSectionForm();
-            
+            this.formElement.firstChild.focus();
             
         }
         
@@ -100,33 +101,48 @@ class SectionForm extends Component {
             <div className="center SectionCard bt bb b--black-10" 
            // onKeyDown={this.props.onDown ? (event) => this.props.onDown(event, this.props.section) : () => ""}
            //onClick={this.props.onSelect ? (event) => this.props.onSelect(event, this.props.section) : () => ""}
-            ref={ this.props.divRef }
+           ref={ this.props.divRef}
             >
              {/* <h5 className="sans-serif">{this.props.name}</h5> */}
-                <form ref={el => this.formElement = el}className="formPaddingTop pl2 pr2 pb1" onSubmit={this.handleOnSubmit}>
+                <form ref={el => this.formElement = el} className="formPaddingTop pl2 pr2 pb1" onSubmit={this.handleOnSubmit}>
                     
                     
-                    <textarea className="w-100 fixTextArea avenir bg-near-white" onChange={this.handleOnChange} 
+                    <textarea tabIndex="0" className="w-100 fixTextArea avenir bg-near-white" onChange={this.handleOnChange} 
+                                
                                 placeholder={placeHolder}
+                                // onFocus={(event)=>{
+                                //     this.formElement.scrollIntoView(false);
+                                // }}
                                 onClick={(event) => {
-                                    event.stopPropagation();
-                                    this.props.onSelect(event, this.props.section)
+                                     event.stopPropagation();
+                                     this.props.onSelect(event, this.props.section)
+                                     this.formElement.scrollIntoView(false);
+                                     //let toggle = true
+                                     //this.props.assignRef(this.formElement);
+                                     //debugger;
+                            //            this.props.onDown(event, this.props.section)
                                 }}
                                 onKeyDown={(event) => {
                                     //const props = this.props;
                                     if (event.key === "ArrowRight" ||event.key === "ArrowLeft" || event.key === "ArrowUp" || event.key === "ArrowDown" ){
                                         if (this.props.sectionFormData.text === ""){
+                                            //debugger;
+                                            console.log("no text")
                                             this.props.onDown(event, this.props.section)
                                         }
                                         else {
                                             let position = this.formElement.firstChild.selectionStart;
+                                            console.log(this.formElement.firstChild.selectionStart, "selectionStart")
+                                            console.log(this.formElement.firstChild.selectionEnd, "selectionEnd")
                                             if (position === this.props.sectionFormData.text.length && (event.key === "ArrowRight" || event.key === "ArrowDown")){
                                                 console.log("trying to go right or down")
                                                 this.props.onDown(event, this.props.section)
+                                                //this.props.onSelect(event, this.props.section)
                                             }
                                             else if (position === 0 && (event.key === "ArrowUp" || event.key === "ArrowLeft")){
                                                 console.log("trying to go left or up")
                                                 this.props.onDown(event, this.props.section)
+                                                //this.props.onSelect(event, this.props.section)
                                             }
                                             
                                         }
