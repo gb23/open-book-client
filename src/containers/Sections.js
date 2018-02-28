@@ -44,16 +44,21 @@ class Sections extends Component{
         //     const urlID = this.props.match.params.id;
         //     this.handleBrowserButtonNavigation(urlID)
         // }
-        if(this.divElement){
+        //debugger;
+        if(this.divElement ){
+            
+            const classListOriginal = this.divElement.className.replace(/warningRed/g, "");
+            console.log("original classList", this.divElement.className)
             if (this.warning === true){
-                const classListOriginal = this.divElement.className;
+     //           debugger;
                 const classListNew = classListOriginal + " warningRed"
                 this.divElement.className = classListNew;
                 setTimeout(() => {
                     this.divElement.className = classListOriginal;
-                }, 100);
-                this.warning = false;
+                    this.warning = false;
+                }, 100)
             }
+
             if(this.divElement.firstChild.elements){
                 //for a card with a form, focus the form
                 this.divElement.firstChild.elements[0].focus()
@@ -66,6 +71,18 @@ class Sections extends Component{
             
             
         }
+        // else if (this.formRef){
+        //     const classListOriginal = this.formRef.className.replace(/warningRed/g, "");
+        //     if (this.warning === true){
+        //         debugger;
+        //         const classListNew = classListOriginal + " warningRed"
+        //         this.formRef.className = classListNew;
+        //         setTimeout(() => {
+        //             this.formRef.className = classListOriginal;
+        //             this.warning = false;
+        //         }, 100)
+        //     }
+        // }
         //debugger;
         this.formRef = false;
         this.sectionList = [];
@@ -264,6 +281,7 @@ class Sections extends Component{
                 }
                 else if (keyName === "ArrowDown"){
                     this.warning = true;
+                    this.formRef = true;
                     this.props.setCurrentSection(this.props.sectionCurrent)
                 }
             }
@@ -290,7 +308,7 @@ class Sections extends Component{
             
 
         } else if (keyName === "ArrowLeft" || keyName === "ArrowRight"){
-            
+            //debugger;
             if(section.id === 0){
                // debugger;
                if(this.props.sectionCurrent.prev_id !== -1 && this.props.sectionCurrent.prev_id !== -2){
@@ -400,8 +418,10 @@ class Sections extends Component{
                     
                     if (section.id === -1){
                         console.log("you are at the bottom and cannot therefore move right");
+                        this.formRef = true;
                         this.warning = true;
-                        this.props.setCurrentSection(this.props.sectionCurrent)
+                        
+                        this.props.setCurrentSection({...this.props.sectionCurrent, valid: false});
       
                     }
                     else {
@@ -447,7 +467,8 @@ class Sections extends Component{
                     if (section.id === -1){
                         console.log("you are at the bottom and cannot therefore move left");
                         this.warning = true;
-                        this.props.setCurrentSection(this.props.sectionCurrent)
+                        this.formRef = true;
+                        this.props.setCurrentSection({...this.props.sectionCurrent, valid: false});
                     }
                     else {
                         console.log("you are at the top and move left");
@@ -489,12 +510,16 @@ class Sections extends Component{
     handleSelect = (event, section) => {
         console.log(section.id, " has been clicked")
         //event.stopPropagation();
+        //debugger;
 
         if (section.id === 0){
             this.props.setCurrentSection(this.props.sectionCurrent);
         }
         else {
             this.props.setCurrentSection({...section, valid: false})
+            // if(section.id === -1){
+            //     this.formRef = true;
+            // }
         }
       
     }
@@ -699,6 +724,9 @@ class Sections extends Component{
             }       
             return {sectionCards, sectionToAddTo} ;
     }
+    // assignRef = (element) => {
+    //     this.divElement = element;
+    // }
     render() {
         //something can go here...
        // debugger;
