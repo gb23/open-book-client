@@ -85,10 +85,6 @@ class SectionForm extends Component {
 
     }
 
-    handlePlaceholder = (section) => {
-        return "hello!"
-    }
-
     getGreatestSectionsId = () => parseInt(this.props.sections.list.slice(-1)[0].id, 10)
 
     render(){
@@ -101,26 +97,44 @@ class SectionForm extends Component {
             <div className="center SectionCard bt bb b--black-10" 
            // onKeyDown={this.props.onDown ? (event) => this.props.onDown(event, this.props.section) : () => ""}
            //onClick={this.props.onSelect ? (event) => this.props.onSelect(event, this.props.section) : () => ""}
-           ref={ this.props.divRef}
+           
+            ref={ this.props.divRef}
             >
              {/* <h5 className="sans-serif">{this.props.name}</h5> */}
-                <form ref={el => this.formElement = el} className="formPaddingTop pl2 pr2 pb1" onSubmit={this.handleOnSubmit}>
+                <form  ref={el => this.formElement = el} className="formPaddingTop pl2 pr2 pb1" 
+                // onFocus={() => {
+                //     debugger;
+                //    // this.formElement.textarea.focus();
+                // }} 
+                onSubmit={this.handleOnSubmit}
+                >
                     
                     
                     <textarea tabIndex="0" className="w-100 fixTextArea avenir bg-near-white" onChange={this.handleOnChange} 
                                 
                                 placeholder={placeHolder}
-                                // onFocus={(event)=>{
-                                //     this.formElement.scrollIntoView(false);
-                                // }}
+                                 onFocus={(event)=>{
+                                //     const props = this.props
+                                //     //debugger;
+                                //     console.log()
+                                //     //console.log("bottom: ", this.formElement.getBoundingClientRect().bottom)
+                                //     console.log("viewport height", window.innerHeight)
+
+                                //     //prevent only partial textbox with hidden button from showing on focus(&click)
+                                //     console.log("innerHeight ", window.innerHeight);
+                                //     console.log("bottom: ", this.formElement.getBoundingClientRect().bottom)
+                                    if (window.innerHeight < this.formElement.getBoundingClientRect().bottom){
+                                       this.formElement.scrollIntoView(false); //false means put it on the bottom of the viewport
+                                    }
+                                    
+                                }}
                                 onClick={(event) => {
-                                     event.stopPropagation();
+                                    event.stopPropagation();
                                      this.props.onSelect(event, this.props.section)
-                                     this.formElement.scrollIntoView(false);
-                                     //let toggle = true
-                                     //this.props.assignRef(this.formElement);
-                                     //debugger;
-                            //            this.props.onDown(event, this.props.section)
+
+                                
+
+                                     
                                 }}
                                 onKeyDown={(event) => {
                                     //const props = this.props;
