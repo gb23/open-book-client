@@ -18,7 +18,9 @@ class Sections extends Component{
         this.sectionList = [];
         this.formRef = false;
         this.warning = false;
-        //this.skip = false;
+        //this.horizontal = false;
+        //this.YpositionOld = 0;
+        this.Yposition = null;
         // this.arrowRight = false;
     }
     componentDidMount() {
@@ -39,15 +41,66 @@ class Sections extends Component{
         })
        
     }
-    componentDidUpdate() {
-        // window.onpopstate = () => {
-        //     const urlID = this.props.match.params.id;
-        //     this.handleBrowserButtonNavigation(urlID)
-        // }
-        //debugger;
-        if(this.divElement ){
+    // componentWillUpdate() {
+    //     let el = document.getElementById('filler')
+    //     if (el){
+    //         el.remove();
+    //     }
+    //     //add filler div below lowest content div to prevent an up/down translation when arrowing horizontally
+    //     let div = document.createElement("div");
+    //     div.style.height = "1000px";
+    //     div.setAttribute("id", "filler");
+    //     document.getElementById('content').appendChild(div)
+    //     document.body.appendChild(div);
+
+    //     if(this.divElement){
+    //          //set position to be the same when arrowing horizontally
+    //             //debugger;
+                
             
-            const classListOriginal = this.divElement.className.replace(/warningRed/g, "");
+            
+    //         this.Yposition = this.divElement.getBoundingClientRect().top
+
+    //         console.log("Yposition WILL = ", this.Yposition);
+
+    //     }
+
+    // }
+    componentDidUpdate() {
+        
+        // let el = document.getElementById('filler')
+        // if (el){
+        //     el.remove();
+        // }
+        
+
+        if(this.divElement ){ //if 
+            //set position to be the same when arrowing horizontally
+            // if(this.Yposition === 0 || this.Yposition){
+            //     //debugger;
+            //     console.log("Yposition DID = ", this.Yposition);
+            //     this.divElement.style.position = "relative"
+            //     this.divElement.style.top = this.Yposition;
+            //     this.Yposition = null;
+            // }
+            // 
+            // this.Yposition = this.divElement.getBoundingClientRect().top
+
+ //add filler div below lowest content div to prevent an up/down translation when arrowing horizontally
+            // let div = document.createElement("div");
+            // div.style.height = "1000px";
+            // div.setAttribute("id", "filler");
+            // document.getElementById('content').appendChild(div)
+            // document.body.appendChild(div);
+
+           //fit card onto top if it is cut off in the viewport
+            if (this.divElement.getBoundingClientRect().top < 0){
+                    this.divElement.scrollIntoView(true); //true means put it on the top of the viewport
+            }
+            
+            let classListOriginal = this.divElement.className.replace(/warningRed/g, "");
+            //debugger;
+
             console.log("original classList", this.divElement.className)
             if (this.warning === true){
      //           debugger;
@@ -233,6 +286,8 @@ class Sections extends Component{
         return nextId;
     }
     handleArrow = (keyName, section) => {
+        
+
         if (keyName === "ArrowDown" || keyName === "ArrowUp"){
             //find sectionCurrent index in sectionList
             const lastIndex = this.sectionList.length - 1;
@@ -308,6 +363,8 @@ class Sections extends Component{
             
 
         } else if (keyName === "ArrowLeft" || keyName === "ArrowRight"){
+
+ //           this.Yposition = this.divElement.getBoundingClientRect().top
             //debugger;
             if(section.id === 0){
                // debugger;
@@ -724,14 +781,12 @@ class Sections extends Component{
             }       
             return {sectionCards, sectionToAddTo} ;
     }
-    // assignRef = (element) => {
-    //     this.divElement = element;
-    // }
+
     render() {
         //something can go here...
        // debugger;
         return( 
-            <div>
+            <div id="content">
             {/* <Switch> */}
                  {/* <Route exact path={`${this.props.match.url}`}
                     render={()=>{
