@@ -57,7 +57,9 @@ export const upVoteSection = (section) => {
     return dispatch => {
         return fetch(`${API_URL}/sections/${section.id}`, {
             method: "PATCH",
+            mode: 'cors',
             headers: {
+                'Access-Control-Allow-Origin':'*',
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({section: {...section, votes: section.votes + 1}})
@@ -71,7 +73,15 @@ export const upVoteSection = (section) => {
 }
 export const getSections = () => {
     return dispatch => {
-        return fetch(`${API_URL}/sections`)
+        return fetch(`${API_URL}/sections`, {
+            method: "GET",
+            mode: 'cors',
+            headers: {
+                'Access-Control-Allow-Origin':'*',
+                'Content-Type': 'application/json'
+            }
+
+        })
             .then(response => response.json())
             .then(sections => {
                 dispatch(setSections(sections))}) //loading is made true in setSections
@@ -84,7 +94,9 @@ export const createSection = (section) => {
         dispatch(loading())
         return fetch(`${API_URL}/sections`, {
             method: "POST",
+            mode: 'cors',
             headers: {
+                'Access-Control-Allow-Origin':'*',
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({section: section})
