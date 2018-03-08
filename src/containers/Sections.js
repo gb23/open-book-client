@@ -189,6 +189,7 @@ class Sections extends Component{
         }
     }
     handleCompositions = (urlId = null, sections) => {
+        debugger;
         const compositions = sections.filter(section => section.prev_id === -1);
         const aboutCompositions = sections.filter(section => section.prev_id === -2);
         let ids = [];

@@ -2,7 +2,6 @@
   "name": "open-book-client",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://gb23.github.io/open-book-client",
   "dependencies": {
     "font-awesome": "^4.7.0",
     "history": "^4.7.2",
@@ -26,8 +25,5 @@
     "css": "tachyons src/css/app.css > src/index.css --minify",
     "prestart": "npm run css",
     "prebuild": "npm run css"
-  },
-  "devDependencies": {
-    "gh-pages": "^1.1.0"
   }
 }
