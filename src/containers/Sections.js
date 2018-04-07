@@ -68,10 +68,10 @@ class Sections extends Component{
     // }
     componentDidUpdate() {
         
-        // let el = document.getElementById('filler')
-        // if (el){
-        //     el.remove();
-        // }
+        let el = document.getElementById('filler')
+        if (el){
+            el.remove();
+        }
         
 
         if(this.divElement ){ //if 
@@ -87,11 +87,11 @@ class Sections extends Component{
             // this.Yposition = this.divElement.getBoundingClientRect().top
 
  //add filler div below lowest content div to prevent an up/down translation when arrowing horizontally
-            // let div = document.createElement("div");
-            // div.style.height = "1000px";
-            // div.setAttribute("id", "filler");
-            // document.getElementById('content').appendChild(div)
-            // document.body.appendChild(div);
+            let div = document.createElement("div");
+            div.style.height = "700px";
+            div.setAttribute("id", "filler");
+            document.getElementById('content').appendChild(div)
+            document.body.appendChild(div);
 
            //fit card onto top if it is cut off in the viewport
             if (this.divElement.getBoundingClientRect().top < 0){
